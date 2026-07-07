@@ -1,0 +1,19 @@
+# Backend (Java/Maven)
+emergencyresponsesystem/target/
+emergencyresponsesystem/.idea/
+emergencyresponsesystem/*.iml
+emergencyresponsesystem/.mvn/
+
+# Frontend (React/Vite)
+emergencyresponsesystem-frontend/node_modules/
+emergencyresponsesystem-frontend/dist/
+emergencyresponsesystem-frontend/.vite/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Environment files (secrets)
+.env
+.env.local
+*.properties.local
