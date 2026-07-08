@@ -3,12 +3,12 @@ import { getMessaging, getToken, onMessage } from "firebase/messaging";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyAnB3xyBG6pJgq50bVJtluzq2ymrFb_5BY",
-  authDomain: "smart-hospital-system-71358.firebaseapp.com",
-  projectId: "smart-hospital-system-71358",
-  storageBucket: "smart-hospital-system-71358.firebasestorage.app",
-  messagingSenderId: "863639549189",
-  appId: "1:863639549189:web:40a644ee0257f2d517b36c"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
 };
 
 
@@ -21,7 +21,7 @@ export const requestNotificationPermission = async () => {
     const permission = await Notification.requestPermission();
     if (permission === "granted") {
       const token = await getToken(messaging, {
-        vapidKey: "BFqYznV60mbOBvfIA3M-ZUe53gui083-JMZjc49cxed-6jnJtL8TNEQuuwy0b1PH5xF_PngDgmhNEiOhJzTbhRA",
+       vapidKey: import.meta.env.VITE_FIREBASE_VAPID_KEY,
       });
       console.log("FCM Token:", token);
       return token;
