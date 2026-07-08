@@ -1,31 +1,49 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 function Navbar() {
+  const location = useLocation();
+
   const navStyle = {
     display: "flex",
-    gap: "20px",
-    padding: "15px 30px",
+    gap: "8px",
+    padding: "14px 30px",
     backgroundColor: "#1a1a2e",
     alignItems: "center",
+    position: "sticky",
+    top: 0,
+    zIndex: 1000,
+    boxShadow: "0 2px 10px rgba(0,0,0,0.15)",
   };
 
-  const linkStyle = {
-    color: "white",
+  const linkStyle = (path) => ({
+    color: location.pathname === path ? "#ffffff" : "#b8b8c8",
     textDecoration: "none",
-    fontSize: "16px",
-    fontWeight: "500",
-  };
+    fontSize: "15px",
+    fontWeight: location.pathname === path ? "600" : "400",
+    padding: "8px 14px",
+    borderRadius: "6px",
+    backgroundColor: location.pathname === path ? "rgba(230, 57, 70, 0.25)" : "transparent",
+    transition: "all 0.15s ease",
+  });
+
+  const links = [
+    { path: "/", label: "Home" },
+    { path: "/hospitals", label: "Hospitals" },
+    { path: "/request-emergency", label: "Request Emergency" },
+    { path: "/patients", label: "Patients" },
+    { path: "/ambulances", label: "Ambulances" },
+  ];
 
   return (
     <nav style={navStyle}>
-      <h2 style={{ color: "#e63946", margin: 0, marginRight: "30px" }}>
-        🚑 Smart Hospital System
+      <h2 style={{ color: "#e63946", margin: 0, marginRight: "30px", fontSize: "20px", whiteSpace: "nowrap" }}>
+        🚑 Smart Hospital
       </h2>
-      <Link to="/" style={linkStyle}>Home</Link>
-      <Link to="/hospitals" style={linkStyle}>Hospitals</Link>
-      <Link to="/request-emergency" style={linkStyle}>Request Emergency</Link>
-      <Link to="/patients" style={linkStyle}>Patients</Link>
-      <Link to="/ambulances" style={linkStyle}>Ambulances</Link>
+      {links.map((link) => (
+        <Link key={link.path} to={link.path} style={linkStyle(link.path)}>
+          {link.label}
+        </Link>
+      ))}
     </nav>
   );
 }
