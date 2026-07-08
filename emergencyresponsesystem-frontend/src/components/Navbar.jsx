@@ -1,14 +1,16 @@
 import { Link, useLocation } from "react-router-dom";
+import { useState } from "react";
 
 function Navbar() {
   const location = useLocation();
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const navStyle = {
     display: "flex",
-    gap: "8px",
-    padding: "14px 30px",
-    backgroundColor: "#1a1a2e",
+    justifyContent: "space-between",
     alignItems: "center",
+    padding: "14px 24px",
+    backgroundColor: "#1a1a2e",
     position: "sticky",
     top: 0,
     zIndex: 1000,
@@ -24,6 +26,7 @@ function Navbar() {
     borderRadius: "6px",
     backgroundColor: location.pathname === path ? "rgba(230, 57, 70, 0.25)" : "transparent",
     transition: "all 0.15s ease",
+    display: "block",
   });
 
   const links = [
@@ -36,14 +39,69 @@ function Navbar() {
 
   return (
     <nav style={navStyle}>
-      <h2 style={{ color: "#e63946", margin: 0, marginRight: "30px", fontSize: "20px", whiteSpace: "nowrap" }}>
-        🚑 Smart Hospital
-      </h2>
-      {links.map((link) => (
-        <Link key={link.path} to={link.path} style={linkStyle(link.path)}>
-          {link.label}
-        </Link>
-      ))}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%" }}>
+        <h2 style={{ color: "#e63946", margin: 0, fontSize: "20px", whiteSpace: "nowrap" }}>
+          🚑 Smart Hospital
+        </h2>
+
+        {/* Desktop links */}
+        <div className="desktop-links" style={{ display: "flex", gap: "8px" }}>
+          {links.map((link) => (
+            <Link key={link.path} to={link.path} style={linkStyle(link.path)}>
+              {link.label}
+            </Link>
+          ))}
+        </div>
+
+        {/* Hamburger button (mobile only) */}
+        <button
+          className="hamburger-btn"
+          onClick={() => setMenuOpen(!menuOpen)}
+          style={{
+            display: "none",
+            background: "none",
+            border: "none",
+            color: "white",
+            fontSize: "24px",
+            cursor: "pointer",
+          }}
+        >
+          {menuOpen ? "✕" : "☰"}
+        </button>
+      </div>
+
+      {/* Mobile dropdown menu */}
+      {menuOpen && (
+        <div
+          className="mobile-menu"
+          style={{
+            display: "none",
+            flexDirection: "column",
+            gap: "6px",
+            marginTop: "14px",
+            width: "100%",
+          }}
+        >
+          {links.map((link) => (
+            <Link
+              key={link.path}
+              to={link.path}
+              style={linkStyle(link.path)}
+              onClick={() => setMenuOpen(false)}
+            >
+              {link.label}
+            </Link>
+          ))}
+        </div>
+      )}
+
+      <style>{`
+        @media (max-width: 768px) {
+          .desktop-links { display: none !important; }
+          .hamburger-btn { display: block !important; }
+          .mobile-menu { display: flex !important; }
+        }
+      `}</style>
     </nav>
   );
 }

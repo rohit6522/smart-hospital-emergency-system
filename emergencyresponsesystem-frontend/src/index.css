@@ -70,3 +70,57 @@ th {
 a {
   text-decoration: none;
 }
+
+
+/* ===== RESPONSIVE FIXES ===== */
+
+@media (max-width: 768px) {
+  /* Reduce heavy padding on small screens */
+  .responsive-container {
+    padding: 20px 16px !important;
+  }
+
+  /* Stack side-by-side form fields vertically */
+  .form-row {
+    flex-direction: column !important;
+  }
+
+  /* Make tables horizontally scrollable instead of squeezing */
+  .table-wrapper {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .table-wrapper table {
+    min-width: 700px;
+  }
+
+  /* Hero section smaller text on mobile */
+  .hero-title {
+    font-size: 26px !important;
+  }
+
+  .hero-subtitle {
+    font-size: 15px !important;
+  }
+
+  /* Feature card grid - single column */
+  .feature-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Map height smaller on mobile */
+  .map-container {
+    height: 300px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-title {
+    font-size: 22px !important;
+  }
+
+  .quick-links {
+    flex-direction: column !important;
+  }
+}

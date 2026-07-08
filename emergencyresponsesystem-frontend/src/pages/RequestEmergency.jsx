@@ -3,7 +3,6 @@ import { MapContainer, TileLayer, Marker, Popup, Polyline } from "react-leaflet"
 import api from "../services/api";
 import { requestNotificationPermission, listenForMessages } from "../firebase";
 
-
 function RequestEmergency() {
   const [latitude, setLatitude] = useState("");
   const [longitude, setLongitude] = useState("");
@@ -12,6 +11,11 @@ function RequestEmergency() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [searched, setSearched] = useState(false);
+
+  useEffect(() => {
+    requestNotificationPermission();
+    listenForMessages();
+  }, []);
 
   const detectLocation = () => {
     if (!navigator.geolocation) {
@@ -27,14 +31,7 @@ function RequestEmergency() {
         setError("Unable to detect location. Please enter manually.");
       }
     );
-
-
   };
-
-  useEffect(() => {
-    requestNotificationPermission();
-    listenForMessages();
-  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -52,15 +49,12 @@ function RequestEmergency() {
       });
       setResults(response.data);
 
-      // Trigger local notification
       if (Notification.permission === "granted") {
         new Notification("🚨 Emergency Request Submitted", {
           body: `Best match: ${response.data[0]?.hospital.name || "Searching..."}`,
           icon: "/vite.svg",
         });
       }
-
-
     } catch (err) {
       setError("Failed to find hospitals. Please check your inputs and try again.");
     } finally {
@@ -89,9 +83,9 @@ function RequestEmergency() {
   };
 
   return (
-    <div style={{ maxWidth: "1000px", margin: "0 auto", padding: "40px 20px" }}>
+    <div className="responsive-container" style={{ maxWidth: "1000px", margin: "0 auto", padding: "40px 20px" }}>
       <div style={{ textAlign: "center", marginBottom: "30px" }}>
-        <h1 style={{ color: "#e63946", marginBottom: "8px" }}>🚨 Request Emergency</h1>
+        <h1 className="hero-title" style={{ color: "#e63946", marginBottom: "8px" }}>🚨 Request Emergency</h1>
         <p style={{ color: "#6c757d" }}>
           Enter your location and emergency type to find the best-suited hospital near you.
         </p>
@@ -120,13 +114,15 @@ function RequestEmergency() {
               cursor: "pointer",
               fontSize: "14px",
               fontWeight: "500",
+              width: "100%",
+              maxWidth: "260px",
             }}
           >
             📍 Use My Current Location
           </button>
         </div>
 
-        <div style={{ display: "flex", gap: "15px", marginBottom: "18px" }}>
+        <div className="form-row" style={{ display: "flex", gap: "15px", marginBottom: "18px" }}>
           <div style={{ flex: 1 }}>
             <label style={labelStyle}>Latitude</label>
             <input
@@ -203,6 +199,7 @@ function RequestEmergency() {
         <div style={{ marginTop: "30px" }}>
           <h2 style={{ fontSize: "20px" }}>Map View</h2>
           <div
+            className="map-container"
             style={{
               height: "450px",
               width: "100%",

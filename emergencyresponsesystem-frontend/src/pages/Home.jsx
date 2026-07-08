@@ -28,6 +28,7 @@ function Home() {
     <div>
       {/* Hero Section */}
       <div
+        className="responsive-container"
         style={{
           background: "linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)",
           color: "white",
@@ -35,12 +36,12 @@ function Home() {
           textAlign: "center",
         }}
       >
-        <h1 style={{ fontSize: "42px", margin: "0 0 15px", color: "white" }}>
+        <h1 className="hero-title" style={{ fontSize: "42px", margin: "0 0 15px", color: "white" }}>
           AI-Powered Smart Hospital
           <br />
           Emergency Response & Routing System
         </h1>
-        <p style={{ fontSize: "18px", color: "#b8b8c8", maxWidth: "650px", margin: "0 auto 35px" }}>
+        <p className="hero-subtitle" style={{ fontSize: "18px", color: "#b8b8c8", maxWidth: "650px", margin: "0 auto 35px" }}>
           Find the nearest and most suitable hospital in seconds. Reduce emergency response
           time and save lives with intelligent, data-driven routing.
         </p>
@@ -64,9 +65,10 @@ function Home() {
       </div>
 
       {/* Feature Cards */}
-      <div style={{ padding: "60px 30px", maxWidth: "1100px", margin: "0 auto" }}>
+      <div className="responsive-container" style={{ padding: "60px 30px", maxWidth: "1100px", margin: "0 auto" }}>
         <h2 style={{ textAlign: "center", marginBottom: "40px" }}>What This System Does</h2>
         <div
+          className="feature-grid"
           style={{
             display: "grid",
             gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
@@ -82,7 +84,6 @@ function Home() {
                 padding: "28px 22px",
                 boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
                 textAlign: "center",
-                transition: "transform 0.2s ease, box-shadow 0.2s ease",
               }}
             >
               <div style={{ fontSize: "40px", marginBottom: "12px" }}>{feature.icon}</div>
@@ -96,8 +97,8 @@ function Home() {
       </div>
 
       {/* Quick Links Section */}
-      <div style={{ backgroundColor: "#fff", padding: "50px 30px", borderTop: "1px solid #e0e0e0" }}>
-        <div style={{ maxWidth: "1100px", margin: "0 auto", display: "flex", gap: "20px", flexWrap: "wrap", justifyContent: "center" }}>
+      <div className="responsive-container" style={{ backgroundColor: "#fff", padding: "50px 30px", borderTop: "1px solid #e0e0e0" }}>
+        <div className="quick-links" style={{ maxWidth: "1100px", margin: "0 auto", display: "flex", gap: "20px", flexWrap: "wrap", justifyContent: "center" }}>
           <Link to="/hospitals" style={quickLinkStyle}>🏥 View Hospitals</Link>
           <Link to="/patients" style={quickLinkStyle}>🧑‍⚕️ Patient Records</Link>
           <Link to="/ambulances" style={quickLinkStyle}>🚑 Ambulance Fleet</Link>
@@ -115,6 +116,7 @@ const quickLinkStyle = {
   borderRadius: "8px",
   fontSize: "15px",
   fontWeight: "500",
+  textAlign: "center",
 };
 
 export default Home;

@@ -41,7 +41,7 @@ function PatientList() {
   );
 
   return (
-    <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "40px 20px" }}>
+    <div className="responsive-container" style={{ maxWidth: "1200px", margin: "0 auto", padding: "40px 20px" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "6px" }}>
         <h1 style={{ margin: 0 }}>🧑‍⚕️ Patient Records</h1>
         <Link to="/patients/add">
@@ -77,7 +77,9 @@ function PatientList() {
       {filteredPatients.length === 0 ? (
         <p>No patients found.</p>
       ) : (
-        <div style={{ backgroundColor: "white", borderRadius: "12px", overflow: "hidden", boxShadow: "0 2px 8px rgba(0,0,0,0.06)" }}>
+        <div className="table-wrapper" style={{ backgroundColor: "white", borderRadius: "12px", overflow: "hidden", boxShadow: "0 2px 8px rgba(0,0,0,0.06)" }}>
+
+
           <table cellPadding="12" style={{ borderCollapse: "collapse", width: "100%", fontSize: "14px" }}>
             <thead>
               <tr style={{ backgroundColor: "#f8f9fa", borderBottom: "2px solid #e0e0e0" }}>

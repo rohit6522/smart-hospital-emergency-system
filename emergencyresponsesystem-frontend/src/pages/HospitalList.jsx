@@ -41,26 +41,15 @@ function HospitalList() {
   const inputStyle = { padding: "10px 12px", fontSize: "14px" };
 
   return (
-    <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "40px 20px" }}>
+    <div className="responsive-container" style={{ maxWidth: "1200px", margin: "0 auto", padding: "40px 20px" }}>
+
       <h1 style={{ marginBottom: "6px" }}>🏥 Hospital List</h1>
       <p style={{ color: "#6c757d", marginTop: 0, marginBottom: "24px" }}>
         Browse all registered hospitals and their real-time resource availability.
       </p>
 
       {/* Filter Card */}
-      <div
-        style={{
-          backgroundColor: "white",
-          borderRadius: "12px",
-          padding: "20px",
-          boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
-          marginBottom: "20px",
-          display: "flex",
-          gap: "15px",
-          flexWrap: "wrap",
-          alignItems: "center",
-        }}
-      >
+      <div className="form-row" style={{ backgroundColor: "white", borderRadius: "12px", padding: "20px", boxShadow: "0 2px 8px rgba(0,0,0,0.06)", marginBottom: "20px", display: "flex", gap: "15px", flexWrap: "wrap", alignItems: "center" }}>
         <input
           type="text"
           placeholder="🔍 Search by hospital name..."
@@ -98,7 +87,10 @@ function HospitalList() {
       {filteredHospitals.length === 0 ? (
         <p>No hospitals match your filters.</p>
       ) : (
-        <div style={{ backgroundColor: "white", borderRadius: "12px", overflow: "hidden", boxShadow: "0 2px 8px rgba(0,0,0,0.06)" }}>
+
+        <div className="table-wrapper" style={{ backgroundColor: "white", borderRadius: "12px", overflow: "hidden", boxShadow: "0 2px 8px rgba(0,0,0,0.06)" }}>
+
+
           <table cellPadding="12" style={{ borderCollapse: "collapse", width: "100%", fontSize: "14px" }}>
             <thead>
               <tr style={{ backgroundColor: "#f8f9fa", borderBottom: "2px solid #e0e0e0" }}>
