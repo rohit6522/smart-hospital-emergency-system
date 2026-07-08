@@ -24,6 +24,8 @@ function Navbar() {
       <Link to="/" style={linkStyle}>Home</Link>
       <Link to="/hospitals" style={linkStyle}>Hospitals</Link>
       <Link to="/request-emergency" style={linkStyle}>Request Emergency</Link>
+      <Link to="/patients" style={linkStyle}>Patients</Link>
+      <Link to="/ambulances" style={linkStyle}>Ambulances</Link>
     </nav>
   );
 }
