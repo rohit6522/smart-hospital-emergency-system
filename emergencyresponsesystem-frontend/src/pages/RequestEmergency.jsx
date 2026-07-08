@@ -1,6 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { MapContainer, TileLayer, Marker, Popup, Polyline } from "react-leaflet";
 import api from "../services/api";
+import { requestNotificationPermission, listenForMessages } from "../firebase";
+
 
 function RequestEmergency() {
   const [latitude, setLatitude] = useState("");
@@ -25,7 +27,14 @@ function RequestEmergency() {
         setError("Unable to detect location. Please enter manually.");
       }
     );
+
+
   };
+
+  useEffect(() => {
+    requestNotificationPermission();
+    listenForMessages();
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -42,6 +51,16 @@ function RequestEmergency() {
         },
       });
       setResults(response.data);
+
+      // Trigger local notification
+      if (Notification.permission === "granted") {
+        new Notification("🚨 Emergency Request Submitted", {
+          body: `Best match: ${response.data[0]?.hospital.name || "Searching..."}`,
+          icon: "/vite.svg",
+        });
+      }
+
+
     } catch (err) {
       setError("Failed to find hospitals. Please check your inputs and try again.");
     } finally {
