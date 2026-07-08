@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import api from "../services/api";
 import { Link } from "react-router-dom";
+import { connectWebSocket, disconnectWebSocket } from "../services/websocket";
 
 function AmbulanceList() {
   const [ambulances, setAmbulances] = useState([]);
@@ -21,6 +22,23 @@ function AmbulanceList() {
 
   useEffect(() => {
     fetchAmbulances();
+
+    connectWebSocket((updatedAmbulance) => {
+      setAmbulances((prevAmbulances) => {
+        const exists = prevAmbulances.some((a) => a.id === updatedAmbulance.id);
+        if (exists) {
+          return prevAmbulances.map((a) =>
+            a.id === updatedAmbulance.id ? updatedAmbulance : a
+          );
+        } else {
+          return [...prevAmbulances, updatedAmbulance];
+        }
+      });
+    });
+
+    return () => {
+      disconnectWebSocket();
+    };
   }, []);
 
   const handleDelete = async (id) => {
@@ -60,7 +78,21 @@ function AmbulanceList() {
   return (
     <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "40px 20px" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "6px" }}>
-        <h1 style={{ margin: 0 }}>🚑 Ambulance Fleet</h1>
+        <h1 style={{ margin: 0 }}>
+          🚑 Ambulance Fleet{" "}
+          <span
+            style={{
+              fontSize: "13px",
+              backgroundColor: "#2a9d8f",
+              color: "white",
+              padding: "3px 10px",
+              borderRadius: "12px",
+              verticalAlign: "middle",
+            }}
+          >
+            🟢 Live
+          </span>
+        </h1>
         <Link to="/ambulances/add">
           <button
             style={{
@@ -79,6 +111,7 @@ function AmbulanceList() {
           </button>
         </Link>
       </div>
+
       <p style={{ color: "#6c757d", marginTop: 0, marginBottom: "24px" }}>
         Track and manage ambulance status and live location.
       </p>
