@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { MapContainer, TileLayer, Marker, Popup, Polyline } from "react-leaflet";
 import api from "../services/api";
 
 function RequestEmergency() {
@@ -48,8 +49,13 @@ function RequestEmergency() {
     }
   };
 
+  const patientLat = parseFloat(latitude);
+  const patientLon = parseFloat(longitude);
+  const hasValidPatientLocation = !isNaN(patientLat) && !isNaN(patientLon);
+  const bestHospital = results.length > 0 ? results[0] : null;
+
   return (
-    <div style={{ padding: "40px", fontFamily: "Arial, sans-serif", maxWidth: "900px", margin: "0 auto" }}>
+    <div style={{ padding: "40px", fontFamily: "Arial, sans-serif", maxWidth: "1000px", margin: "0 auto" }}>
       <h1>🚨 Request Emergency</h1>
       <p style={{ color: "#555" }}>
         Enter your location and emergency type to find the best-suited hospital near you.
@@ -135,6 +141,59 @@ function RequestEmergency() {
 
       {!loading && searched && results.length === 0 && !error && (
         <p style={{ marginTop: "20px" }}>No hospitals found in the system yet.</p>
+      )}
+
+      {/* MAP SECTION */}
+      {hasValidPatientLocation && results.length > 0 && (
+        <div style={{ marginTop: "30px", marginBottom: "30px" }}>
+          <h2>Map View</h2>
+          <div style={{ height: "450px", width: "100%", borderRadius: "8px", overflow: "hidden" }}>
+            <MapContainer
+              center={[patientLat, patientLon]}
+              zoom={12}
+              style={{ height: "100%", width: "100%" }}
+            >
+              <TileLayer
+                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              />
+
+              {/* Patient marker */}
+              <Marker position={[patientLat, patientLon]}>
+                <Popup>📍 Your Location</Popup>
+              </Marker>
+
+              {/* Hospital markers */}
+              {results.map((rec) => (
+                <Marker
+                  key={rec.hospital.id}
+                  position={[rec.hospital.latitude, rec.hospital.longitude]}
+                >
+                  <Popup>
+                    <strong>{rec.hospital.name}</strong>
+                    <br />
+                    Distance: {rec.distanceInKm.toFixed(2)} km
+                    <br />
+                    ICU Beds: {rec.hospital.availableIcuBeds}/{rec.hospital.totalIcuBeds}
+                  </Popup>
+                </Marker>
+              ))}
+
+              {/* Route line to best hospital */}
+              {bestHospital && (
+                <Polyline
+                  positions={[
+                    [patientLat, patientLon],
+                    [bestHospital.hospital.latitude, bestHospital.hospital.longitude],
+                  ]}
+                  color="#e63946"
+                  weight={4}
+                  dashArray="8"
+                />
+              )}
+            </MapContainer>
+          </div>
+        </div>
       )}
 
       {results.length > 0 && (
