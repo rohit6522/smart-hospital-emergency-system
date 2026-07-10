@@ -4,7 +4,7 @@ import { Client } from "@stomp/stompjs";
 let stompClient = null;
 
 export const connectWebSocket = (onAmbulanceUpdate) => {
-  const socket = new SockJS("http://localhost:8080/ws");
+  const socket = new SockJS(`${import.meta.env.VITE_API_URL.replace("/api", "")}/ws`);
 
   stompClient = new Client({
     webSocketFactory: () => socket,
