@@ -4,6 +4,7 @@ import com.smarthospital.emergencyresponsesystem.entity.Ambulance;
 import com.smarthospital.emergencyresponsesystem.service.AmbulanceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 import java.util.List;
 
@@ -14,6 +15,9 @@ public class AmbulanceController {
 
     @Autowired
     private AmbulanceService ambulanceService;
+
+    @Autowired
+    private SimpMessagingTemplate messagingTemplate;
 
     @PostMapping
     public Ambulance addAmbulance(@RequestBody Ambulance ambulance) {
@@ -33,7 +37,9 @@ public class AmbulanceController {
 
     @PutMapping("/{id}")
     public Ambulance updateAmbulance(@PathVariable Long id, @RequestBody Ambulance ambulance) {
-        return ambulanceService.updateAmbulance(id, ambulance);
+        Ambulance updated = ambulanceService.updateAmbulance(id, ambulance);
+        messagingTemplate.convertAndSend("/topic/ambulance-updates", updated);
+        return updated;
     }
 
     @DeleteMapping("/{id}")
