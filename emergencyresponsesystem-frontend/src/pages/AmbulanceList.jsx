@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import api from "../services/api";
 import { Link } from "react-router-dom";
 import { connectWebSocket, disconnectWebSocket } from "../services/websocket";
+import { useAuth } from "../context/AuthContext";
+
 
 function AmbulanceList() {
   const [ambulances, setAmbulances] = useState([]);
@@ -9,6 +11,8 @@ function AmbulanceList() {
   const [error, setError] = useState(null);
   const [statusFilter, setStatusFilter] = useState("All");
   const [isLive, setIsLive] = useState(false);
+  const { isAdmin } = useAuth();
+
 
   const fetchAmbulances = async () => {
     try {
@@ -101,23 +105,25 @@ function AmbulanceList() {
           </span>
 
         </h1>
-        <Link to="/ambulances/add">
-          <button
-            style={{
-              padding: "12px 22px",
-              backgroundColor: "#2a9d8f",
-              color: "white",
-              border: "none",
-              borderRadius: "8px",
-              cursor: "pointer",
-              fontSize: "14px",
-              fontWeight: "600",
-              boxShadow: "0 2px 8px rgba(42, 157, 143, 0.3)",
-            }}
-          >
-            + Add New Ambulance
-          </button>
-        </Link>
+        {isAdmin && (
+          <Link to="/ambulance/add">
+            <button
+              style={{
+                padding: "12px 22px",
+                backgroundColor: "#2a9d8f",
+                color: "white",
+                border: "none",
+                borderRadius: "8px",
+                cursor: "pointer",
+                fontSize: "14px",
+                fontWeight: "600",
+                boxShadow: "0 2px 8px rgba(42, 157, 143, 0.3)",
+              }}
+            >
+              + Add New Ambulance
+            </button>
+          </Link>
+        )}
       </div>
 
       <p style={{ color: "#6c757d", marginTop: 0, marginBottom: "24px" }}>
@@ -173,39 +179,46 @@ function AmbulanceList() {
                   </td>
                   <td>{ambulance.assignedHospitalId}</td>
                   <td>
-                    <select
-                      value={ambulance.status}
-                      onChange={(e) => handleStatusChange(ambulance, e.target.value)}
-                      style={{
+
+
+                    {isAdmin ? (
+                      <select value={ambulance.status} onChange={(e) => handleStatusChange(ambulance, e.target.value)}>
+                        <option value="AVAILABLE">AVAILABLE</option>
+                        <option value="ON_DUTY">ON_DUTY</option>
+                        <option value="OFFLINE">OFFLINE</option>
+                      </select>
+                    ) : (
+                      <span style={{
                         padding: "6px 10px",
                         backgroundColor: statusColor[ambulance.status] || "#ccc",
                         color: "white",
-                        border: "none",
                         borderRadius: "6px",
                         fontSize: "13px",
                         fontWeight: "600",
-                      }}
-                    >
-                      <option value="AVAILABLE">AVAILABLE</option>
-                      <option value="ON_DUTY">ON_DUTY</option>
-                      <option value="OFFLINE">OFFLINE</option>
-                    </select>
+                      }}>
+                        {ambulance.status}
+                      </span>
+                    )}
+
+
                   </td>
                   <td>
-                    <button
-                      onClick={() => handleDelete(ambulance.id)}
-                      style={{
-                        padding: "6px 14px",
-                        backgroundColor: "#e63946",
-                        color: "white",
-                        border: "none",
-                        borderRadius: "6px",
-                        cursor: "pointer",
-                        fontSize: "13px",
-                      }}
-                    >
-                      Delete
-                    </button>
+                    {isAdmin && (
+                      <button
+                        onClick={() => handleDelete(ambulance.id)}
+                        style={{
+                          padding: "6px 14px",
+                          backgroundColor: "#e63946",
+                          color: "white",
+                          border: "none",
+                          borderRadius: "6px",
+                          cursor: "pointer",
+                          fontSize: "13px",
+                        }}
+                      >
+                        Delete
+                      </button>
+                    )}
                   </td>
                 </tr>
               ))}

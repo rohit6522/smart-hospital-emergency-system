@@ -9,7 +9,7 @@ import AmbulanceList from "./pages/AmbulanceList";
 import AddAmbulance from "./pages/AddAmbulance";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
-
+import AdminRoute from "./components/AdminRoute";
 
 function App() {
   return (
@@ -20,9 +20,9 @@ function App() {
         <Route path="/hospitals" element={<HospitalList />} />
         <Route path="/request-emergency" element={<RequestEmergency />} />
         <Route path="/patients" element={<PatientList />} />
-        <Route path="/patients/add" element={<AddPatient />} />
         <Route path="/ambulances" element={<AmbulanceList />} />
-        <Route path="/ambulances/add" element={<AddAmbulance />} />
+        <Route path="/patients/add" element={<AdminRoute><AddPatient /></AdminRoute>} />
+        <Route path="/ambulances/add" element={<AdminRoute><AddAmbulance /></AdminRoute>} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
       </Routes>
