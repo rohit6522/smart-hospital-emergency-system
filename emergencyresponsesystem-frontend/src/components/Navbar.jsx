@@ -6,9 +6,6 @@ function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   const navStyle = {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
     padding: "14px 24px",
     backgroundColor: "#1a1a2e",
     position: "sticky",
@@ -22,7 +19,7 @@ function Navbar() {
     textDecoration: "none",
     fontSize: "15px",
     fontWeight: location.pathname === path ? "600" : "400",
-    padding: "8px 14px",
+    padding: "10px 14px",
     borderRadius: "6px",
     backgroundColor: location.pathname === path ? "rgba(230, 57, 70, 0.25)" : "transparent",
     transition: "all 0.15s ease",
@@ -62,8 +59,10 @@ function Navbar() {
             background: "none",
             border: "none",
             color: "white",
-            fontSize: "24px",
+            fontSize: "26px",
             cursor: "pointer",
+            padding: "4px 8px",
+            lineHeight: 1,
           }}
         >
           {menuOpen ? "✕" : "☰"}
@@ -77,9 +76,11 @@ function Navbar() {
           style={{
             display: "none",
             flexDirection: "column",
-            gap: "6px",
-            marginTop: "14px",
+            gap: "4px",
+            marginTop: "16px",
             width: "100%",
+            borderTop: "1px solid rgba(255,255,255,0.1)",
+            paddingTop: "12px",
           }}
         >
           {links.map((link) => (
