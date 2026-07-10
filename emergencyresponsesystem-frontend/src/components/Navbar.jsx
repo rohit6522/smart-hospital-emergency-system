@@ -29,13 +29,17 @@ function Navbar() {
     display: "block",
   });
 
-  const links = [
+  const baseLinks = [
     { path: "/", label: "Home" },
     { path: "/hospitals", label: "Hospitals" },
     { path: "/request-emergency", label: "Request Emergency" },
     { path: "/patients", label: "Patients" },
     { path: "/ambulances", label: "Ambulances" },
   ];
+
+  const links = user?.role === "ADMIN"
+    ? [...baseLinks, { path: "/dashboard", label: "📊 Dashboard" }]
+    : baseLinks;
 
   const handleLogout = () => {
     logout();

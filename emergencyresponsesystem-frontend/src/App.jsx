@@ -10,6 +10,8 @@ import AddAmbulance from "./pages/AddAmbulance";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import AdminRoute from "./components/AdminRoute";
+import AdminDashboard from "./pages/AdminDashboard";
+
 
 function App() {
   return (
@@ -25,6 +27,7 @@ function App() {
         <Route path="/ambulances/add" element={<AdminRoute><AddAmbulance /></AdminRoute>} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
+        <Route path="/dashboard" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
       </Routes>
     </BrowserRouter>
   );
