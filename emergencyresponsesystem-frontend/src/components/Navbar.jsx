@@ -1,9 +1,12 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { useAuth } from "../context/AuthContext";
 
 function Navbar() {
   const location = useLocation();
+  const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
+  const { user, logout } = useAuth();
 
   const navStyle = {
     padding: "14px 24px",
@@ -34,6 +37,12 @@ function Navbar() {
     { path: "/ambulances", label: "Ambulances" },
   ];
 
+  const handleLogout = () => {
+    logout();
+    setMenuOpen(false);
+    navigate("/");
+  };
+
   return (
     <nav style={navStyle}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%" }}>
@@ -42,12 +51,52 @@ function Navbar() {
         </h2>
 
         {/* Desktop links */}
-        <div className="desktop-links" style={{ display: "flex", gap: "8px" }}>
+        <div className="desktop-links" style={{ display: "flex", gap: "8px", alignItems: "center" }}>
           {links.map((link) => (
             <Link key={link.path} to={link.path} style={linkStyle(link.path)}>
               {link.label}
             </Link>
           ))}
+
+          {user ? (
+            <>
+              <span style={{ color: "#b8b8c8", fontSize: "14px", marginLeft: "8px" }}>
+                👤 {user.fullName || user.username} {user.role === "ADMIN" && "🛡️"}
+              </span>
+              <button
+                onClick={handleLogout}
+                style={{
+                  marginLeft: "8px",
+                  padding: "8px 16px",
+                  backgroundColor: "#e63946",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "6px",
+                  fontSize: "14px",
+                  cursor: "pointer",
+                  fontWeight: "600",
+                }}
+              >
+                Logout
+              </button>
+            </>
+          ) : (
+            <Link
+              to="/login"
+              style={{
+                marginLeft: "8px",
+                padding: "8px 16px",
+                backgroundColor: "#2a9d8f",
+                color: "white",
+                borderRadius: "6px",
+                fontSize: "14px",
+                fontWeight: "600",
+                textDecoration: "none",
+              }}
+            >
+              Login
+            </Link>
+          )}
         </div>
 
         {/* Hamburger button (mobile only) */}
@@ -93,6 +142,48 @@ function Navbar() {
               {link.label}
             </Link>
           ))}
+
+          {user ? (
+            <>
+              <span style={{ color: "#b8b8c8", fontSize: "14px", padding: "10px 14px" }}>
+                👤 {user.fullName || user.username} {user.role === "ADMIN" && "🛡️"}
+              </span>
+              <button
+                onClick={handleLogout}
+                style={{
+                  margin: "0 14px",
+                  padding: "10px",
+                  backgroundColor: "#e63946",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "6px",
+                  fontSize: "14px",
+                  cursor: "pointer",
+                  fontWeight: "600",
+                }}
+              >
+                Logout
+              </button>
+            </>
+          ) : (
+            <Link
+              to="/login"
+              onClick={() => setMenuOpen(false)}
+              style={{
+                margin: "0 14px",
+                padding: "10px",
+                backgroundColor: "#2a9d8f",
+                color: "white",
+                borderRadius: "6px",
+                fontSize: "14px",
+                fontWeight: "600",
+                textDecoration: "none",
+                textAlign: "center",
+              }}
+            >
+              Login
+            </Link>
+          )}
         </div>
       )}
 

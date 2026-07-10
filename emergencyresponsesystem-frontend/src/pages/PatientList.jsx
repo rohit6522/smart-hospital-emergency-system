@@ -1,12 +1,16 @@
 import { useEffect, useState } from "react";
 import api from "../services/api";
 import { Link } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+
 
 function PatientList() {
   const [patients, setPatients] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const { isAdmin } = useAuth();
+
 
   const fetchPatients = async () => {
     try {
@@ -44,23 +48,25 @@ function PatientList() {
     <div className="responsive-container" style={{ maxWidth: "1200px", margin: "0 auto", padding: "40px 20px" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "6px" }}>
         <h1 style={{ margin: 0 }}>🧑‍⚕️ Patient Records</h1>
-        <Link to="/patients/add">
-          <button
-            style={{
-              padding: "12px 22px",
-              backgroundColor: "#2a9d8f",
-              color: "white",
-              border: "none",
-              borderRadius: "8px",
-              cursor: "pointer",
-              fontSize: "14px",
-              fontWeight: "600",
-              boxShadow: "0 2px 8px rgba(42, 157, 143, 0.3)",
-            }}
-          >
-            + Add New Patient
-          </button>
-        </Link>
+        {isAdmin && (
+          <Link to="/patients/add">
+            <button
+              style={{
+                padding: "12px 22px",
+                backgroundColor: "#2a9d8f",
+                color: "white",
+                border: "none",
+                borderRadius: "8px",
+                cursor: "pointer",
+                fontSize: "14px",
+                fontWeight: "600",
+                boxShadow: "0 2px 8px rgba(42, 157, 143, 0.3)",
+              }}
+            >
+              + Add New Patient
+            </button>
+          </Link>
+        )}
       </div>
       <p style={{ color: "#6c757d", marginTop: 0, marginBottom: "24px" }}>
         Manage digital patient medical history for faster emergency treatment.
@@ -117,20 +123,22 @@ function PatientList() {
                     {patient.emergencyContactNumber}
                   </td>
                   <td>
-                    <button
-                      onClick={() => handleDelete(patient.id)}
-                      style={{
-                        padding: "6px 14px",
-                        backgroundColor: "#e63946",
-                        color: "white",
-                        border: "none",
-                        borderRadius: "6px",
-                        cursor: "pointer",
-                        fontSize: "13px",
-                      }}
-                    >
-                      Delete
-                    </button>
+                    {isAdmin && (
+                      <button
+                        onClick={() => handleDelete(patient.id)}
+                        style={{
+                          padding: "6px 14px",
+                          backgroundColor: "#e63946",
+                          color: "white",
+                          border: "none",
+                          borderRadius: "6px",
+                          cursor: "pointer",
+                          fontSize: "13px",
+                        }}
+                      >
+                        Delete
+                      </button>
+                    )}
                   </td>
                 </tr>
               ))}
