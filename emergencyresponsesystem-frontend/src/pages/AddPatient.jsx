@@ -38,7 +38,7 @@ function AddPatient() {
   };
 
   return (
-    <div style={{ padding: "40px", fontFamily: "Arial, sans-serif", maxWidth: "600px", margin: "0 auto" }}>
+    <div className="responsive-container" style={{ padding: "40px", fontFamily: "Arial, sans-serif", maxWidth: "600px", margin: "0 auto" }}>
       <h1>➕ Add New Patient</h1>
 
       <form onSubmit={handleSubmit} style={{ marginTop: "20px" }}>
@@ -54,7 +54,8 @@ function AddPatient() {
           />
         </div>
 
-        <div style={{ display: "flex", gap: "15px", marginBottom: "15px" }}>
+       <div className="form-row" style={{ display: "flex", gap: "15px", marginBottom: "15px" }}>
+
           <div style={{ flex: 1 }}>
             <label>Age</label>
             <input
@@ -81,7 +82,7 @@ function AddPatient() {
           </div>
         </div>
 
-        <div style={{ display: "flex", gap: "15px", marginBottom: "15px" }}>
+        <div className="form-row" style={{ display: "flex", gap: "15px", marginBottom: "15px" }}>
           <div style={{ flex: 1 }}>
             <label>Contact Number</label>
             <input
@@ -118,7 +119,7 @@ function AddPatient() {
           />
         </div>
 
-        <div style={{ display: "flex", gap: "15px", marginBottom: "20px" }}>
+       <div className="form-row" style={{ display: "flex", gap: "15px", marginBottom: "15px" }}>
           <div style={{ flex: 1 }}>
             <label>Emergency Contact Name</label>
             <input

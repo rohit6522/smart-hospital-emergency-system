@@ -58,7 +58,7 @@ function AddAmbulance() {
   };
 
   return (
-    <div style={{ padding: "40px", fontFamily: "Arial, sans-serif", maxWidth: "600px", margin: "0 auto" }}>
+    <div className="responsive-container" style={{ padding: "40px", fontFamily: "Arial, sans-serif", maxWidth: "600px", margin: "0 auto" }}>
       <h1>➕ Add New Ambulance</h1>
 
       <form onSubmit={handleSubmit} style={{ marginTop: "20px" }}>
@@ -75,7 +75,7 @@ function AddAmbulance() {
           />
         </div>
 
-        <div style={{ display: "flex", gap: "15px", marginBottom: "15px" }}>
+       <div style={{ display: "flex", gap: "15px", marginBottom: "20px" }}>
           <div style={{ flex: 1 }}>
             <label>Driver Name</label>
             <input
@@ -118,7 +118,7 @@ function AddAmbulance() {
           </button>
         </div>
 
-        <div style={{ display: "flex", gap: "15px", marginBottom: "15px" }}>
+       <div style={{ display: "flex", gap: "15px", marginBottom: "20px" }}>
           <div style={{ flex: 1 }}>
             <label>Current Latitude</label>
             <input
@@ -143,7 +143,7 @@ function AddAmbulance() {
           </div>
         </div>
 
-        <div style={{ display: "flex", gap: "15px", marginBottom: "20px" }}>
+       <div style={{ display: "flex", gap: "15px", marginBottom: "20px" }}>
           <div style={{ flex: 1 }}>
             <label>Status</label>
             <select
