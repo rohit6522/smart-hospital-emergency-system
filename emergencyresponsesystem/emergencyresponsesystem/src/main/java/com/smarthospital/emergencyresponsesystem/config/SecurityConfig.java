@@ -45,7 +45,8 @@ public class SecurityConfig {
                         .requestMatchers("GET", "/api/patients/**").permitAll()
                         .requestMatchers("POST", "/api/emergency-requests/**").permitAll()
                         .requestMatchers("GET", "/api/emergency-requests/**").permitAll()
-
+                        .requestMatchers("GET", "/api/dashboard/**").permitAll()
+                        
                         // Admin-only endpoints - write operations
                         .requestMatchers("POST", "/api/hospitals/**").hasRole("ADMIN")
                         .requestMatchers("PUT", "/api/hospitals/**").hasRole("ADMIN")
