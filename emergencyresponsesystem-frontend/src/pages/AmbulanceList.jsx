@@ -8,6 +8,7 @@ function AmbulanceList() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [statusFilter, setStatusFilter] = useState("All");
+  const [isLive, setIsLive] = useState(false);
 
   const fetchAmbulances = async () => {
     try {
@@ -23,18 +24,23 @@ function AmbulanceList() {
   useEffect(() => {
     fetchAmbulances();
 
-    connectWebSocket((updatedAmbulance) => {
-      setAmbulances((prevAmbulances) => {
-        const exists = prevAmbulances.some((a) => a.id === updatedAmbulance.id);
-        if (exists) {
-          return prevAmbulances.map((a) =>
-            a.id === updatedAmbulance.id ? updatedAmbulance : a
-          );
-        } else {
-          return [...prevAmbulances, updatedAmbulance];
-        }
-      });
-    });
+    connectWebSocket(
+      (updatedAmbulance) => {
+        setAmbulances((prevAmbulances) => {
+          const exists = prevAmbulances.some((a) => a.id === updatedAmbulance.id);
+          if (exists) {
+            return prevAmbulances.map((a) =>
+              a.id === updatedAmbulance.id ? updatedAmbulance : a
+            );
+          } else {
+            return [...prevAmbulances, updatedAmbulance];
+          }
+        });
+      },
+      (connected) => {
+        setIsLive(connected);
+      }
+    );
 
     return () => {
       disconnectWebSocket();
@@ -76,7 +82,7 @@ function AmbulanceList() {
   };
 
   return (
-     <div className="responsive-container" style={{ maxWidth: "1200px", margin: "0 auto", padding: "40px 20px" }}>
+    <div className="responsive-container" style={{ maxWidth: "1200px", margin: "0 auto", padding: "40px 20px" }}>
 
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "6px" }}>
         <h1 style={{ margin: 0 }}>
@@ -84,15 +90,16 @@ function AmbulanceList() {
           <span
             style={{
               fontSize: "13px",
-              backgroundColor: "#2a9d8f",
+              backgroundColor: isLive ? "#2a9d8f" : "#e63946",
               color: "white",
               padding: "3px 10px",
               borderRadius: "12px",
               verticalAlign: "middle",
             }}
           >
-            🟢 Live
+            {isLive ? "🟢 Live" : "🔴 Offline"}
           </span>
+
         </h1>
         <Link to="/ambulances/add">
           <button
@@ -135,7 +142,7 @@ function AmbulanceList() {
       {filteredAmbulances.length === 0 ? (
         <p>No ambulances found.</p>
       ) : (
-         <div className="table-wrapper" style={{ backgroundColor: "white", borderRadius: "12px", overflow: "hidden", boxShadow: "0 2px 8px rgba(0,0,0,0.06)" }}>
+        <div className="table-wrapper" style={{ backgroundColor: "white", borderRadius: "12px", overflow: "hidden", boxShadow: "0 2px 8px rgba(0,0,0,0.06)" }}>
 
 
           <table cellPadding="12" style={{ borderCollapse: "collapse", width: "100%", fontSize: "14px" }}>
