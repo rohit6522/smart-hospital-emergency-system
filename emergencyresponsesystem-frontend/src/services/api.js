@@ -9,4 +9,15 @@ const api = axios.create({
   },
 });
 
+api.interceptors.request.use((config) => {
+  const storedUser = localStorage.getItem("hospitalUser");
+  if (storedUser) {
+    const { token } = JSON.parse(storedUser);
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+  }
+  return config;
+});
+
 export default api;

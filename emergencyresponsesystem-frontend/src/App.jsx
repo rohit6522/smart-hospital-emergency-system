@@ -7,6 +7,9 @@ import PatientList from "./pages/PatientList";
 import AddPatient from "./pages/AddPatient";
 import AmbulanceList from "./pages/AmbulanceList";
 import AddAmbulance from "./pages/AddAmbulance";
+import Login from "./pages/Login";
+import Signup from "./pages/Signup";
+
 
 function App() {
   return (
@@ -20,6 +23,8 @@ function App() {
         <Route path="/patients/add" element={<AddPatient />} />
         <Route path="/ambulances" element={<AmbulanceList />} />
         <Route path="/ambulances/add" element={<AddAmbulance />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
       </Routes>
     </BrowserRouter>
   );
