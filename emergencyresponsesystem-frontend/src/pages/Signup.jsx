@@ -79,18 +79,7 @@ function Signup() {
             />
           </div>
 
-          <div style={{ marginBottom: "20px" }}>
-            <label style={{ fontSize: "13px", fontWeight: "600", color: "#444" }}>Account Type</label>
-            <select
-              name="role"
-              value={formData.role}
-              onChange={handleChange}
-              style={{ width: "100%", padding: "10px 12px", marginTop: "6px" }}
-            >
-              <option value="PUBLIC">Public User</option>
-              <option value="ADMIN">Hospital Admin</option>
-            </select>
-          </div>
+          
 
           {error && <p style={{ color: "#e63946", fontSize: "14px", marginBottom: "16px" }}>{error}</p>}
 
