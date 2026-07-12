@@ -35,8 +35,8 @@ public class AuthController {
         user.setUsername(request.getUsername());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setFullName(request.getFullName());
-        user.setRole(request.getRole() != null ? request.getRole() : "PUBLIC");
 
+        user.setRole("PUBLIC"); // Force PUBLIC - signup can never create ADMIN accounts
         userRepository.save(user);
 
         String token = jwtUtil.generateToken(user.getUsername(), user.getRole());
