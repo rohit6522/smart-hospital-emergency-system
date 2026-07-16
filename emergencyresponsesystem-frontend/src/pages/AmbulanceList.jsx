@@ -4,7 +4,6 @@ import { Link } from "react-router-dom";
 import { connectWebSocket, disconnectWebSocket } from "../services/websocket";
 import { useAuth } from "../context/AuthContext";
 
-
 function AmbulanceList() {
   const [ambulances, setAmbulances] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -12,7 +11,6 @@ function AmbulanceList() {
   const [statusFilter, setStatusFilter] = useState("All");
   const [isLive, setIsLive] = useState(false);
   const { isAdmin } = useAuth();
-
 
   const fetchAmbulances = async () => {
     try {
@@ -86,15 +84,14 @@ function AmbulanceList() {
   };
 
   return (
-    <div className="responsive-container" style={{ maxWidth: "1200px", margin: "0 auto", padding: "40px 20px" }}>
-
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "6px" }}>
+    <div className="responsive-container" style={{ maxWidth: "1200px", margin: "0 auto", padding: "50px 20px" }}>
+      <div className="animate-fade-up" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "6px" }}>
         <h1 style={{ margin: 0 }}>
           🚑 Ambulance Fleet{" "}
           <span
             style={{
               fontSize: "13px",
-              backgroundColor: isLive ? "#2a9d8f" : "#e63946",
+              background: isLive ? "linear-gradient(135deg, #2a9d8f, #21867a)" : "linear-gradient(135deg, #e63946, #c1121f)",
               color: "white",
               padding: "3px 10px",
               borderRadius: "12px",
@@ -103,21 +100,20 @@ function AmbulanceList() {
           >
             {isLive ? "🟢 Live" : "🔴 Offline"}
           </span>
-
         </h1>
         {isAdmin && (
-          <Link to="/ambulance/add">
+          <Link to="/ambulances/add">
             <button
               style={{
                 padding: "12px 22px",
-                backgroundColor: "#2a9d8f",
+                background: "linear-gradient(135deg, #2a9d8f, #21867a)",
                 color: "white",
-                border: "none",
-                borderRadius: "8px",
+                border: "1px solid rgba(255,255,255,0.2)",
+                borderRadius: "10px",
                 cursor: "pointer",
                 fontSize: "14px",
-                fontWeight: "600",
-                boxShadow: "0 2px 8px rgba(42, 157, 143, 0.3)",
+                fontWeight: "700",
+                boxShadow: "0 6px 18px rgba(42, 157, 143, 0.35)",
               }}
             >
               + Add New Ambulance
@@ -126,14 +122,15 @@ function AmbulanceList() {
         )}
       </div>
 
-      <p style={{ color: "#6c757d", marginTop: 0, marginBottom: "24px" }}>
+      <p className="animate-fade-up" style={{ color: "#6c757d", marginTop: 0, marginBottom: "24px" }}>
         Track and manage ambulance status and live location.
       </p>
 
       <select
         value={statusFilter}
         onChange={(e) => setStatusFilter(e.target.value)}
-        style={{ padding: "10px 12px", marginBottom: "20px", fontSize: "14px" }}
+        className="animate-fade-up"
+        style={{ padding: "11px 14px", marginBottom: "20px", fontSize: "14px" }}
       >
         <option value="All">All Statuses</option>
         <option value="AVAILABLE">Available</option>
@@ -148,12 +145,10 @@ function AmbulanceList() {
       {filteredAmbulances.length === 0 ? (
         <p>No ambulances found.</p>
       ) : (
-        <div className="table-wrapper" style={{ backgroundColor: "white", borderRadius: "12px", overflow: "hidden", boxShadow: "0 2px 8px rgba(0,0,0,0.06)" }}>
-
-
+        <div className="glass-card table-wrapper animate-fade-up" style={{ overflow: "hidden" }}>
           <table cellPadding="12" style={{ borderCollapse: "collapse", width: "100%", fontSize: "14px" }}>
             <thead>
-              <tr style={{ backgroundColor: "#f8f9fa", borderBottom: "2px solid #e0e0e0" }}>
+              <tr style={{ backgroundColor: "rgba(255,255,255,0.4)", borderBottom: "1px solid rgba(0,0,0,0.06)" }}>
                 <th>ID</th>
                 <th>Vehicle Number</th>
                 <th>Driver</th>
@@ -161,14 +156,17 @@ function AmbulanceList() {
                 <th>Current Location</th>
                 <th>Assigned Hospital ID</th>
                 <th>Status</th>
-                <th>Actions</th>
+                {isAdmin && <th>Actions</th>}
               </tr>
             </thead>
             <tbody>
               {filteredAmbulances.map((ambulance, i) => (
                 <tr
                   key={ambulance.id}
-                  style={{ borderBottom: "1px solid #f0f0f0", backgroundColor: i % 2 === 0 ? "white" : "#fafafa" }}
+                  style={{
+                    borderBottom: "1px solid rgba(0,0,0,0.05)",
+                    backgroundColor: i % 2 === 0 ? "rgba(255,255,255,0.25)" : "rgba(255,255,255,0.05)",
+                  }}
                 >
                   <td>{ambulance.id}</td>
                   <td style={{ fontWeight: "600" }}>{ambulance.vehicleNumber}</td>
@@ -179,36 +177,46 @@ function AmbulanceList() {
                   </td>
                   <td>{ambulance.assignedHospitalId}</td>
                   <td>
-
-
                     {isAdmin ? (
-                      <select value={ambulance.status} onChange={(e) => handleStatusChange(ambulance, e.target.value)}>
+                      <select
+                        value={ambulance.status}
+                        onChange={(e) => handleStatusChange(ambulance, e.target.value)}
+                        style={{
+                          padding: "6px 10px",
+                          backgroundColor: statusColor[ambulance.status] || "#ccc",
+                          color: "white",
+                          border: "none",
+                          borderRadius: "6px",
+                          fontSize: "13px",
+                          fontWeight: "600",
+                        }}
+                      >
                         <option value="AVAILABLE">AVAILABLE</option>
                         <option value="ON_DUTY">ON_DUTY</option>
                         <option value="OFFLINE">OFFLINE</option>
                       </select>
                     ) : (
-                      <span style={{
-                        padding: "6px 10px",
-                        backgroundColor: statusColor[ambulance.status] || "#ccc",
-                        color: "white",
-                        borderRadius: "6px",
-                        fontSize: "13px",
-                        fontWeight: "600",
-                      }}>
+                      <span
+                        style={{
+                          padding: "6px 10px",
+                          backgroundColor: statusColor[ambulance.status] || "#ccc",
+                          color: "white",
+                          borderRadius: "6px",
+                          fontSize: "13px",
+                          fontWeight: "600",
+                        }}
+                      >
                         {ambulance.status}
                       </span>
                     )}
-
-
                   </td>
-                  <td>
-                    {isAdmin && (
+                  {isAdmin && (
+                    <td>
                       <button
                         onClick={() => handleDelete(ambulance.id)}
                         style={{
                           padding: "6px 14px",
-                          backgroundColor: "#e63946",
+                          background: "linear-gradient(135deg, #e63946, #c1121f)",
                           color: "white",
                           border: "none",
                           borderRadius: "6px",
@@ -218,8 +226,8 @@ function AmbulanceList() {
                       >
                         Delete
                       </button>
-                    )}
-                  </td>
+                    </td>
+                  )}
                 </tr>
               ))}
             </tbody>

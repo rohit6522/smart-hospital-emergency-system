@@ -87,21 +87,18 @@ function HospitalList() {
   const editInputStyle = { padding: "6px 8px", fontSize: "13px", width: "100%", minWidth: "80px" };
 
   return (
-    <div className="responsive-container" style={{ maxWidth: "1300px", margin: "0 auto", padding: "40px 20px" }}>
-      <h1 style={{ marginBottom: "6px" }}>🏥 Hospital List</h1>
-      <p style={{ color: "#6c757d", marginTop: 0, marginBottom: "24px" }}>
+    <div className="responsive-container" style={{ maxWidth: "1300px", margin: "0 auto", padding: "50px 20px" }}>
+      <h1 className="animate-fade-up" style={{ marginBottom: "6px" }}>🏥 Hospital List</h1>
+      <p className="animate-fade-up" style={{ color: "#6c757d", marginTop: 0, marginBottom: "24px" }}>
         Browse all registered hospitals and their real-time resource availability.
         {isAdmin && " Click 'Edit' to update live availability."}
       </p>
 
       {/* Filter Card */}
       <div
-        className="form-row"
+        className="glass-card form-row animate-fade-up"
         style={{
-          backgroundColor: "white",
-          borderRadius: "12px",
           padding: "20px",
-          boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
           marginBottom: "20px",
           display: "flex",
           gap: "15px",
@@ -146,10 +143,10 @@ function HospitalList() {
       {filteredHospitals.length === 0 ? (
         <p>No hospitals match your filters.</p>
       ) : (
-        <div className="table-wrapper" style={{ backgroundColor: "white", borderRadius: "12px", overflow: "hidden", boxShadow: "0 2px 8px rgba(0,0,0,0.06)" }}>
+        <div className="glass-card table-wrapper animate-fade-up" style={{ overflow: "hidden" }}>
           <table cellPadding="12" style={{ borderCollapse: "collapse", width: "100%", fontSize: "14px" }}>
             <thead>
-              <tr style={{ backgroundColor: "#f8f9fa", borderBottom: "2px solid #e0e0e0" }}>
+              <tr style={{ backgroundColor: "rgba(255,255,255,0.4)", borderBottom: "1px solid rgba(0,0,0,0.06)" }}>
                 <th>ID</th>
                 <th>Name</th>
                 <th>Address</th>
@@ -167,7 +164,10 @@ function HospitalList() {
                 return (
                   <tr
                     key={hospital.id}
-                    style={{ borderBottom: "1px solid #f0f0f0", backgroundColor: isEditing ? "#fffbea" : i % 2 === 0 ? "white" : "#fafafa" }}
+                    style={{
+                      borderBottom: "1px solid rgba(0,0,0,0.05)",
+                      backgroundColor: isEditing ? "rgba(255,251,234,0.6)" : i % 2 === 0 ? "rgba(255,255,255,0.25)" : "rgba(255,255,255,0.05)",
+                    }}
                   >
                     <td>{hospital.id}</td>
 
@@ -198,8 +198,8 @@ function HospitalList() {
                         </td>
                         <td><input style={editInputStyle} value={editForm.contactNumber} onChange={(e) => handleEditChange("contactNumber", e.target.value)} /></td>
                         <td style={{ display: "flex", gap: "6px" }}>
-                          <button onClick={() => saveEdit(hospital.id)} style={{ padding: "6px 10px", backgroundColor: "#2a9d8f", color: "white", border: "none", borderRadius: "4px", cursor: "pointer", fontSize: "12px" }}>Save</button>
-                          <button onClick={cancelEdit} style={{ padding: "6px 10px", backgroundColor: "#999", color: "white", border: "none", borderRadius: "4px", cursor: "pointer", fontSize: "12px" }}>Cancel</button>
+                          <button onClick={() => saveEdit(hospital.id)} style={{ padding: "6px 10px", background: "linear-gradient(135deg, #2a9d8f, #21867a)", color: "white", border: "none", borderRadius: "6px", cursor: "pointer", fontSize: "12px" }}>Save</button>
+                          <button onClick={cancelEdit} style={{ padding: "6px 10px", backgroundColor: "#999", color: "white", border: "none", borderRadius: "6px", cursor: "pointer", fontSize: "12px" }}>Cancel</button>
                         </td>
                       </>
                     ) : (
@@ -210,15 +210,15 @@ function HospitalList() {
                         <td>{hospital.bloodBankAvailable ? "✅" : "❌"}</td>
                         <td>{hospital.availableDoctors}</td>
                         <td>
-                          <span style={{ backgroundColor: "#e8f4f8", color: "#457b9d", padding: "3px 10px", borderRadius: "12px", fontSize: "12px", fontWeight: "600" }}>
+                          <span style={{ background: "rgba(69,123,157,0.15)", color: "#457b9d", padding: "3px 10px", borderRadius: "12px", fontSize: "12px", fontWeight: "600" }}>
                             {hospital.emergencyType}
                           </span>
                         </td>
                         <td>{hospital.contactNumber}</td>
                         {isAdmin && (
                           <td style={{ display: "flex", gap: "6px" }}>
-                            <button onClick={() => startEdit(hospital)} style={{ padding: "6px 12px", backgroundColor: "#457b9d", color: "white", border: "none", borderRadius: "4px", cursor: "pointer", fontSize: "12px" }}>Edit</button>
-                            <button onClick={() => handleDelete(hospital.id)} style={{ padding: "6px 12px", backgroundColor: "#e63946", color: "white", border: "none", borderRadius: "4px", cursor: "pointer", fontSize: "12px" }}>Delete</button>
+                            <button onClick={() => startEdit(hospital)} style={{ padding: "6px 12px", background: "linear-gradient(135deg, #457b9d, #2d5a7a)", color: "white", border: "none", borderRadius: "6px", cursor: "pointer", fontSize: "12px" }}>Edit</button>
+                            <button onClick={() => handleDelete(hospital.id)} style={{ padding: "6px 12px", background: "linear-gradient(135deg, #e63946, #c1121f)", color: "white", border: "none", borderRadius: "6px", cursor: "pointer", fontSize: "12px" }}>Delete</button>
                           </td>
                         )}
                       </>

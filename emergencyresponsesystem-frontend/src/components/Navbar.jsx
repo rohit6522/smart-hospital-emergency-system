@@ -10,22 +10,28 @@ function Navbar() {
 
   const navStyle = {
     padding: "14px 24px",
-    backgroundColor: "#1a1a2e",
+    background: "rgba(26, 26, 46, 0.65)",
+    backdropFilter: "blur(16px) saturate(180%)",
+    WebkitBackdropFilter: "blur(16px) saturate(180%)",
+    borderBottom: "1px solid rgba(255,255,255,0.08)",
     position: "sticky",
     top: 0,
     zIndex: 1000,
-    boxShadow: "0 2px 10px rgba(0,0,0,0.15)",
+    boxShadow: "0 4px 24px rgba(0,0,0,0.15)",
   };
 
   const linkStyle = (path) => ({
-    color: location.pathname === path ? "#ffffff" : "#b8b8c8",
+    color: location.pathname === path ? "#ffffff" : "#c5c5d8",
     textDecoration: "none",
     fontSize: "15px",
     fontWeight: location.pathname === path ? "600" : "400",
-    padding: "10px 14px",
-    borderRadius: "6px",
-    backgroundColor: location.pathname === path ? "rgba(230, 57, 70, 0.25)" : "transparent",
-    transition: "all 0.15s ease",
+    padding: "9px 15px",
+    borderRadius: "10px",
+    background: location.pathname === path
+      ? "linear-gradient(135deg, rgba(230,57,70,0.35), rgba(230,57,70,0.15))"
+      : "transparent",
+    border: location.pathname === path ? "1px solid rgba(230,57,70,0.3)" : "1px solid transparent",
+    transition: "all 0.2s ease",
     display: "block",
   });
 
@@ -50,12 +56,23 @@ function Navbar() {
   return (
     <nav style={navStyle}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%" }}>
-        <h2 style={{ color: "#e63946", margin: 0, fontSize: "20px", whiteSpace: "nowrap" }}>
+        <h2
+          style={{
+            margin: 0,
+            fontSize: "20px",
+            whiteSpace: "nowrap",
+            background: "linear-gradient(135deg, #e63946, #ff6b6b)",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+            backgroundClip: "text",
+            fontWeight: "800",
+          }}
+        >
           🚑 Smart Hospital
         </h2>
 
         {/* Desktop links */}
-        <div className="desktop-links" style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+        <div className="desktop-links" style={{ display: "flex", gap: "6px", alignItems: "center" }}>
           {links.map((link) => (
             <Link key={link.path} to={link.path} style={linkStyle(link.path)}>
               {link.label}
@@ -64,18 +81,19 @@ function Navbar() {
 
           {user ? (
             <>
-              <span style={{ color: "#b8b8c8", fontSize: "14px", marginLeft: "8px" }}>
+              <span style={{ color: "#c5c5d8", fontSize: "14px", marginLeft: "8px" }}>
                 👤 {user.fullName || user.username} {user.role === "ADMIN" && "🛡️"}
               </span>
               <button
                 onClick={handleLogout}
                 style={{
                   marginLeft: "8px",
-                  padding: "8px 16px",
-                  backgroundColor: "#e63946",
+                  padding: "9px 18px",
+                  background: "rgba(230, 57, 70, 0.85)",
+                  backdropFilter: "blur(6px)",
                   color: "white",
-                  border: "none",
-                  borderRadius: "6px",
+                  border: "1px solid rgba(255,255,255,0.15)",
+                  borderRadius: "10px",
                   fontSize: "14px",
                   cursor: "pointer",
                   fontWeight: "600",
@@ -89,10 +107,12 @@ function Navbar() {
               to="/login"
               style={{
                 marginLeft: "8px",
-                padding: "8px 16px",
-                backgroundColor: "#2a9d8f",
+                padding: "9px 18px",
+                background: "rgba(42, 157, 143, 0.85)",
+                backdropFilter: "blur(6px)",
                 color: "white",
-                borderRadius: "6px",
+                border: "1px solid rgba(255,255,255,0.15)",
+                borderRadius: "10px",
                 fontSize: "14px",
                 fontWeight: "600",
                 textDecoration: "none",
@@ -125,7 +145,7 @@ function Navbar() {
       {/* Mobile dropdown menu */}
       {menuOpen && (
         <div
-          className="mobile-menu"
+          className="mobile-menu animate-fade"
           style={{
             display: "none",
             flexDirection: "column",
@@ -149,7 +169,7 @@ function Navbar() {
 
           {user ? (
             <>
-              <span style={{ color: "#b8b8c8", fontSize: "14px", padding: "10px 14px" }}>
+              <span style={{ color: "#c5c5d8", fontSize: "14px", padding: "10px 14px" }}>
                 👤 {user.fullName || user.username} {user.role === "ADMIN" && "🛡️"}
               </span>
               <button
@@ -157,10 +177,10 @@ function Navbar() {
                 style={{
                   margin: "0 14px",
                   padding: "10px",
-                  backgroundColor: "#e63946",
+                  background: "rgba(230, 57, 70, 0.85)",
                   color: "white",
                   border: "none",
-                  borderRadius: "6px",
+                  borderRadius: "10px",
                   fontSize: "14px",
                   cursor: "pointer",
                   fontWeight: "600",
@@ -176,9 +196,9 @@ function Navbar() {
               style={{
                 margin: "0 14px",
                 padding: "10px",
-                backgroundColor: "#2a9d8f",
+                background: "rgba(42, 157, 143, 0.85)",
                 color: "white",
-                borderRadius: "6px",
+                borderRadius: "10px",
                 fontSize: "14px",
                 fontWeight: "600",
                 textDecoration: "none",

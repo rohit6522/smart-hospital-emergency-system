@@ -30,42 +30,95 @@ function Home() {
       <div
         className="responsive-container"
         style={{
-          background: "linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)",
+          background: "linear-gradient(135deg, #0f0c29 0%, #302b63 55%, #24243e 100%)",
           color: "white",
-          padding: "80px 30px",
+          padding: "90px 30px",
           textAlign: "center",
+          position: "relative",
+          overflow: "hidden",
         }}
       >
-        <h1 className="hero-title" style={{ fontSize: "42px", margin: "0 0 15px", color: "white" }}>
-          AI-Powered Smart Hospital
-          <br />
-          Emergency Response & Routing System
-        </h1>
-        <p className="hero-subtitle" style={{ fontSize: "18px", color: "#b8b8c8", maxWidth: "650px", margin: "0 auto 35px" }}>
-          Find the nearest and most suitable hospital in seconds. Reduce emergency response
-          time and save lives with intelligent, data-driven routing.
-        </p>
-        <Link to="/request-emergency">
-          <button
+        {/* Decorative glow blobs */}
+        <div
+          className="animate-float"
+          style={{
+            position: "absolute",
+            top: "-60px",
+            left: "-60px",
+            width: "260px",
+            height: "260px",
+            borderRadius: "50%",
+            background: "radial-gradient(circle, rgba(230,57,70,0.35), transparent 70%)",
+            filter: "blur(10px)",
+          }}
+        />
+        <div
+          className="animate-float"
+          style={{
+            position: "absolute",
+            bottom: "-80px",
+            right: "-40px",
+            width: "320px",
+            height: "320px",
+            borderRadius: "50%",
+            background: "radial-gradient(circle, rgba(42,157,143,0.3), transparent 70%)",
+            filter: "blur(10px)",
+            animationDelay: "1s",
+          }}
+        />
+
+        <div className="animate-fade-up" style={{ position: "relative", zIndex: 1 }}>
+          <div
+            className="glass-dark"
             style={{
-              padding: "16px 36px",
-              fontSize: "17px",
-              fontWeight: "600",
-              backgroundColor: "#e63946",
-              color: "white",
-              border: "none",
-              borderRadius: "8px",
-              cursor: "pointer",
-              boxShadow: "0 4px 14px rgba(230, 57, 70, 0.4)",
+              display: "inline-block",
+              padding: "6px 16px",
+              borderRadius: "999px",
+              fontSize: "13px",
+              marginBottom: "20px",
+              color: "#b8b8c8",
             }}
           >
-            🚨 Request Emergency Now
-          </button>
-        </Link>
+            ⚡ AI-Powered Emergency Response
+          </div>
+          <h1 className="hero-title" style={{ fontSize: "44px", margin: "0 0 15px", color: "white", fontWeight: "800", lineHeight: 1.2 }}>
+            AI-Powered Smart Hospital
+            <br />
+            <span style={{
+              background: "linear-gradient(135deg, #e63946, #f4a261)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              backgroundClip: "text",
+            }}>
+              Emergency Response & Routing
+            </span>
+          </h1>
+          <p className="hero-subtitle" style={{ fontSize: "18px", color: "#b8b8c8", maxWidth: "650px", margin: "0 auto 35px" }}>
+            Find the nearest and most suitable hospital in seconds. Reduce emergency response
+            time and save lives with intelligent, data-driven routing.
+          </p>
+          <Link to="/request-emergency">
+            <button
+              style={{
+                padding: "16px 36px",
+                fontSize: "17px",
+                fontWeight: "700",
+                background: "linear-gradient(135deg, #e63946, #c1121f)",
+                color: "white",
+                border: "1px solid rgba(255,255,255,0.15)",
+                borderRadius: "12px",
+                cursor: "pointer",
+                boxShadow: "0 8px 24px rgba(230, 57, 70, 0.45)",
+              }}
+            >
+              🚨 Request Emergency Now
+            </button>
+          </Link>
+        </div>
       </div>
 
       {/* Feature Cards */}
-      <div className="responsive-container" style={{ padding: "60px 30px", maxWidth: "1100px", margin: "0 auto" }}>
+      <div className="responsive-container" style={{ padding: "70px 30px", maxWidth: "1100px", margin: "0 auto" }}>
         <h2 style={{ textAlign: "center", marginBottom: "40px" }}>What This System Does</h2>
         <div
           className="feature-grid"
@@ -75,20 +128,18 @@ function Home() {
             gap: "24px",
           }}
         >
-          {features.map((feature) => (
+          {features.map((feature, i) => (
             <div
               key={feature.title}
+              className={`glass-card animate-fade-up stagger-${i + 1}`}
               style={{
-                backgroundColor: "white",
-                borderRadius: "12px",
-                padding: "28px 22px",
-                boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+                padding: "30px 22px",
                 textAlign: "center",
               }}
             >
-              <div style={{ fontSize: "40px", marginBottom: "12px" }}>{feature.icon}</div>
+              <div style={{ fontSize: "42px", marginBottom: "14px" }}>{feature.icon}</div>
               <h3 style={{ margin: "0 0 10px", fontSize: "17px" }}>{feature.title}</h3>
-              <p style={{ color: "#6c757d", fontSize: "14px", lineHeight: "1.5", margin: 0 }}>
+              <p style={{ color: "#6c757d", fontSize: "14px", lineHeight: "1.6", margin: 0 }}>
                 {feature.desc}
               </p>
             </div>
@@ -97,11 +148,21 @@ function Home() {
       </div>
 
       {/* Quick Links Section */}
-      <div className="responsive-container" style={{ backgroundColor: "#fff", padding: "50px 30px", borderTop: "1px solid #e0e0e0" }}>
-        <div className="quick-links" style={{ maxWidth: "1100px", margin: "0 auto", display: "flex", gap: "20px", flexWrap: "wrap", justifyContent: "center" }}>
-          <Link to="/hospitals" style={quickLinkStyle}>🏥 View Hospitals</Link>
-          <Link to="/patients" style={quickLinkStyle}>🧑‍⚕️ Patient Records</Link>
-          <Link to="/ambulances" style={quickLinkStyle}>🚑 Ambulance Fleet</Link>
+      <div className="responsive-container" style={{ padding: "50px 30px 70px" }}>
+        <div
+          className="quick-links"
+          style={{
+            maxWidth: "1100px",
+            margin: "0 auto",
+            display: "flex",
+            gap: "20px",
+            flexWrap: "wrap",
+            justifyContent: "center",
+          }}
+        >
+          <Link to="/hospitals" className="glass-card animate-fade-up stagger-1" style={quickLinkStyle}>🏥 View Hospitals</Link>
+          <Link to="/patients" className="glass-card animate-fade-up stagger-2" style={quickLinkStyle}>🧑‍⚕️ Patient Records</Link>
+          <Link to="/ambulances" className="glass-card animate-fade-up stagger-3" style={quickLinkStyle}>🚑 Ambulance Fleet</Link>
         </div>
       </div>
     </div>
@@ -109,13 +170,10 @@ function Home() {
 }
 
 const quickLinkStyle = {
-  padding: "14px 28px",
-  backgroundColor: "#f8f9fa",
+  padding: "16px 30px",
   color: "#1d1d1d",
-  border: "1px solid #e0e0e0",
-  borderRadius: "8px",
   fontSize: "15px",
-  fontWeight: "500",
+  fontWeight: "600",
   textAlign: "center",
 };
 

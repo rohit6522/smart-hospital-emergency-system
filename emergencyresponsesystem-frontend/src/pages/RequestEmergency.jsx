@@ -69,7 +69,7 @@ function RequestEmergency() {
 
   const inputStyle = {
     width: "100%",
-    padding: "10px 12px",
+    padding: "11px 14px",
     marginTop: "6px",
     fontSize: "14px",
   };
@@ -83,9 +83,9 @@ function RequestEmergency() {
   };
 
   return (
-    <div className="responsive-container" style={{ maxWidth: "1000px", margin: "0 auto", padding: "40px 20px" }}>
-      <div style={{ textAlign: "center", marginBottom: "30px" }}>
-        <h1 className="hero-title" style={{ color: "#e63946", marginBottom: "8px" }}>🚨 Request Emergency</h1>
+    <div className="responsive-container" style={{ maxWidth: "1000px", margin: "0 auto", padding: "50px 20px" }}>
+      <div className="animate-fade-up" style={{ textAlign: "center", marginBottom: "34px" }}>
+        <h1 className="hero-title" style={{ color: "#e63946", marginBottom: "8px", fontWeight: "800" }}>🚨 Request Emergency</h1>
         <p style={{ color: "#6c757d" }}>
           Enter your location and emergency type to find the best-suited hospital near you.
         </p>
@@ -94,26 +94,24 @@ function RequestEmergency() {
       {/* Form Card */}
       <form
         onSubmit={handleSubmit}
+        className="glass-card animate-fade-up"
         style={{
-          backgroundColor: "white",
-          borderRadius: "12px",
-          padding: "30px",
-          boxShadow: "0 2px 12px rgba(0,0,0,0.08)",
+          padding: "34px",
         }}
       >
-        <div style={{ marginBottom: "18px" }}>
+        <div style={{ marginBottom: "20px" }}>
           <button
             type="button"
             onClick={detectLocation}
             style={{
-              padding: "10px 18px",
-              backgroundColor: "#457b9d",
+              padding: "11px 20px",
+              background: "linear-gradient(135deg, #457b9d, #2d5a7a)",
               color: "white",
-              border: "none",
-              borderRadius: "6px",
+              border: "1px solid rgba(255,255,255,0.2)",
+              borderRadius: "10px",
               cursor: "pointer",
               fontSize: "14px",
-              fontWeight: "500",
+              fontWeight: "600",
               width: "100%",
               maxWidth: "260px",
             }}
@@ -147,7 +145,7 @@ function RequestEmergency() {
           </div>
         </div>
 
-        <div style={{ marginBottom: "22px" }}>
+        <div style={{ marginBottom: "24px" }}>
           <label style={labelStyle}>Emergency Type</label>
           <select
             value={emergencyType}
@@ -166,15 +164,15 @@ function RequestEmergency() {
           type="submit"
           style={{
             width: "100%",
-            padding: "14px",
-            backgroundColor: "#e63946",
+            padding: "15px",
+            background: "linear-gradient(135deg, #e63946, #c1121f)",
             color: "white",
-            border: "none",
-            borderRadius: "8px",
+            border: "1px solid rgba(255,255,255,0.2)",
+            borderRadius: "10px",
             fontSize: "16px",
-            fontWeight: "600",
+            fontWeight: "700",
             cursor: "pointer",
-            boxShadow: "0 4px 12px rgba(230, 57, 70, 0.3)",
+            boxShadow: "0 8px 20px rgba(230, 57, 70, 0.35)",
           }}
         >
           Find Nearest Hospital
@@ -182,12 +180,12 @@ function RequestEmergency() {
       </form>
 
       {loading && (
-        <p style={{ marginTop: "20px", textAlign: "center", color: "#457b9d" }}>
+        <p className="animate-fade" style={{ marginTop: "20px", textAlign: "center", color: "#457b9d", fontWeight: "600" }}>
           🔍 Searching for hospitals...
         </p>
       )}
       {error && (
-        <p style={{ marginTop: "20px", color: "#e63946", textAlign: "center" }}>{error}</p>
+        <p className="animate-fade" style={{ marginTop: "20px", color: "#e63946", textAlign: "center" }}>{error}</p>
       )}
 
       {!loading && searched && results.length === 0 && !error && (
@@ -196,16 +194,15 @@ function RequestEmergency() {
 
       {/* MAP SECTION */}
       {hasValidPatientLocation && results.length > 0 && (
-        <div style={{ marginTop: "30px" }}>
+        <div className="animate-fade-up" style={{ marginTop: "34px" }}>
           <h2 style={{ fontSize: "20px" }}>Map View</h2>
           <div
-            className="map-container"
+            className="glass-card map-container"
             style={{
               height: "450px",
               width: "100%",
-              borderRadius: "12px",
               overflow: "hidden",
-              boxShadow: "0 2px 12px rgba(0,0,0,0.1)",
+              padding: 0,
             }}
           >
             <MapContainer
@@ -255,29 +252,28 @@ function RequestEmergency() {
 
       {/* Results */}
       {results.length > 0 && (
-        <div style={{ marginTop: "30px" }}>
+        <div style={{ marginTop: "34px" }}>
           <h2 style={{ fontSize: "20px" }}>Recommended Hospitals</h2>
           {results.map((rec, index) => (
             <div
               key={rec.hospital.id}
+              className={`glass-card animate-fade-up stagger-${Math.min(index + 1, 6)}`}
               style={{
-                border: index === 0 ? "2px solid #2a9d8f" : "1px solid #e0e0e0",
-                borderRadius: "12px",
-                padding: "20px",
-                marginBottom: "15px",
-                backgroundColor: index === 0 ? "#f0fdf9" : "#fff",
-                boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
+                padding: "22px",
+                marginBottom: "16px",
+                border: index === 0 ? "1.5px solid rgba(42,157,143,0.5)" : undefined,
+                background: index === 0 ? "rgba(240, 253, 249, 0.75)" : undefined,
               }}
             >
               {index === 0 && (
                 <span
                   style={{
-                    background: "#2a9d8f",
+                    background: "linear-gradient(135deg, #2a9d8f, #21867a)",
                     color: "white",
-                    padding: "4px 12px",
-                    borderRadius: "20px",
+                    padding: "4px 14px",
+                    borderRadius: "999px",
                     fontSize: "12px",
-                    fontWeight: "600",
+                    fontWeight: "700",
                   }}
                 >
                   ⭐ BEST MATCH
@@ -290,7 +286,7 @@ function RequestEmergency() {
                   display: "grid",
                   gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
                   gap: "8px",
-                  marginTop: "12px",
+                  marginTop: "14px",
                   fontSize: "14px",
                 }}
               >

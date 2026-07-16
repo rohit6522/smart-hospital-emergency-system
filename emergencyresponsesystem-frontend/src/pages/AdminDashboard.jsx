@@ -49,9 +49,9 @@ function AdminDashboard() {
   ];
 
   return (
-    <div className="responsive-container" style={{ maxWidth: "1200px", margin: "0 auto", padding: "40px 20px" }}>
-      <h1 style={{ marginBottom: "6px" }}>📊 Admin Dashboard</h1>
-      <p style={{ color: "#6c757d", marginTop: 0, marginBottom: "30px" }}>
+    <div className="responsive-container" style={{ maxWidth: "1200px", margin: "0 auto", padding: "50px 20px" }}>
+      <h1 className="animate-fade-up" style={{ marginBottom: "6px" }}>📊 Admin Dashboard</h1>
+      <p className="animate-fade-up" style={{ color: "#6c757d", marginTop: 0, marginBottom: "30px" }}>
         Overview of hospital system performance and resources.
       </p>
 
@@ -65,19 +65,17 @@ function AdminDashboard() {
           marginBottom: "40px",
         }}
       >
-        {cards.map((card) => (
+        {cards.map((card, i) => (
           <div
             key={card.label}
+            className={`glass-card animate-fade-up stagger-${Math.min(i + 1, 6)}`}
             style={{
-              backgroundColor: "white",
-              borderRadius: "12px",
               padding: "20px",
-              boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
               borderLeft: `4px solid ${card.color}`,
             }}
           >
             <div style={{ fontSize: "26px", marginBottom: "8px" }}>{card.icon}</div>
-            <div style={{ fontSize: "28px", fontWeight: "700", color: "#1d1d1d" }}>{card.value}</div>
+            <div style={{ fontSize: "28px", fontWeight: "800", color: "#1d1d1d" }}>{card.value}</div>
             <div style={{ fontSize: "13px", color: "#6c757d", marginTop: "4px" }}>{card.label}</div>
           </div>
         ))}
@@ -93,7 +91,7 @@ function AdminDashboard() {
         }}
       >
         {/* Pie Chart - Emergency Type Distribution */}
-        <div style={{ backgroundColor: "white", borderRadius: "12px", padding: "24px", boxShadow: "0 2px 8px rgba(0,0,0,0.06)" }}>
+        <div className="glass-card animate-fade-up" style={{ padding: "24px" }}>
           <h3 style={{ marginTop: 0, marginBottom: "16px", fontSize: "16px" }}>Hospitals by Emergency Type</h3>
           {emergencyTypeData.length > 0 ? (
             <ResponsiveContainer width="100%" height={280}>
@@ -121,7 +119,7 @@ function AdminDashboard() {
         </div>
 
         {/* Bar Chart - Ambulance Status */}
-        <div style={{ backgroundColor: "white", borderRadius: "12px", padding: "24px", boxShadow: "0 2px 8px rgba(0,0,0,0.06)" }}>
+        <div className="glass-card animate-fade-up stagger-2" style={{ padding: "24px" }}>
           <h3 style={{ marginTop: 0, marginBottom: "16px", fontSize: "16px" }}>Ambulance Status Breakdown</h3>
           {ambulanceStatusData.length > 0 ? (
             <ResponsiveContainer width="100%" height={280}>
