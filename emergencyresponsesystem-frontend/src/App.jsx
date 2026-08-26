@@ -11,6 +11,7 @@ import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import AdminRoute from "./components/AdminRoute";
 import AdminDashboard from "./pages/AdminDashboard";
+import Footer from "./components/Footer";
 
 
 function App() {
@@ -29,6 +30,7 @@ function App() {
         <Route path="/signup" element={<Signup />} />
         <Route path="/dashboard" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
       </Routes>
+      <Footer/>
     </BrowserRouter>
   );
 }
