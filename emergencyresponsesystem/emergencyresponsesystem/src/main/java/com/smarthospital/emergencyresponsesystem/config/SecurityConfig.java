@@ -39,6 +39,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // Public endpoints - no login needed
                         .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("GET", "/api/health").permitAll()
                         .requestMatchers("/ws/**").permitAll()
                         .requestMatchers("GET", "/api/hospitals/**").permitAll()
                         .requestMatchers("GET", "/api/ambulances/**").permitAll()
