@@ -147,7 +147,7 @@ function RequestEmergency() {
 
         <div style={{ marginBottom: "24px" }}>
           <label style={labelStyle}>Emergency Type</label>
-          <select
+                  <select
             value={emergencyType}
             onChange={(e) => setEmergencyType(e.target.value)}
             style={inputStyle}
@@ -156,6 +156,11 @@ function RequestEmergency() {
             <option value="Cardiac">Cardiac</option>
             <option value="Accident">Accident</option>
             <option value="Pediatric">Pediatric</option>
+            <option value="Neuro">Neuro (Stroke/Brain)</option>
+            <option value="Burns">Burns</option>
+            <option value="Poisoning">Poisoning</option>
+            <option value="Maternity">Maternity/Obstetric</option>
+            <option value="Respiratory">Respiratory</option>
             <option value="General">General</option>
           </select>
         </div>

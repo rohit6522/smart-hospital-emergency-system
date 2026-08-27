@@ -187,12 +187,17 @@ function HospitalList() {
                           </select>
                         </td>
                         <td><input style={{ ...editInputStyle, width: "60px" }} type="number" value={editForm.availableDoctors} onChange={(e) => handleEditChange("availableDoctors", e.target.value)} /></td>
-                        <td>
+                                               <td>
                           <select style={editInputStyle} value={editForm.emergencyType} onChange={(e) => handleEditChange("emergencyType", e.target.value)}>
                             <option value="Trauma">Trauma</option>
                             <option value="Cardiac">Cardiac</option>
                             <option value="Accident">Accident</option>
                             <option value="Pediatric">Pediatric</option>
+                            <option value="Neuro">Neuro</option>
+                            <option value="Burns">Burns</option>
+                            <option value="Poisoning">Poisoning</option>
+                            <option value="Maternity">Maternity</option>
+                            <option value="Respiratory">Respiratory</option>
                             <option value="General">General</option>
                           </select>
                         </td>
