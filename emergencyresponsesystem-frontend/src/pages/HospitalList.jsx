@@ -44,7 +44,18 @@ function HospitalList() {
 
   const startEdit = (hospital) => {
     setEditingId(hospital.id);
-    setEditForm({ ...hospital, emergencyTypes: hospital.emergencyTypes || [] });
+    setEditForm({
+      ...hospital,
+      emergencyTypes: hospital.emergencyTypes || [],
+      bloodAPos: hospital.bloodAPos ?? 0,
+      bloodANeg: hospital.bloodANeg ?? 0,
+      bloodBPos: hospital.bloodBPos ?? 0,
+      bloodBNeg: hospital.bloodBNeg ?? 0,
+      bloodOPos: hospital.bloodOPos ?? 0,
+      bloodONeg: hospital.bloodONeg ?? 0,
+      bloodABPos: hospital.bloodABPos ?? 0,
+      bloodABNeg: hospital.bloodABNeg ?? 0,
+    });
   };
 
   const cancelEdit = () => {
@@ -76,6 +87,14 @@ function HospitalList() {
         totalIcuBeds: parseInt(editForm.totalIcuBeds),
         availableIcuBeds: parseInt(editForm.availableIcuBeds),
         availableDoctors: parseInt(editForm.availableDoctors),
+        bloodAPos: parseInt(editForm.bloodAPos) || 0,
+        bloodANeg: parseInt(editForm.bloodANeg) || 0,
+        bloodBPos: parseInt(editForm.bloodBPos) || 0,
+        bloodBNeg: parseInt(editForm.bloodBNeg) || 0,
+        bloodOPos: parseInt(editForm.bloodOPos) || 0,
+        bloodONeg: parseInt(editForm.bloodONeg) || 0,
+        bloodABPos: parseInt(editForm.bloodABPos) || 0,
+        bloodABNeg: parseInt(editForm.bloodABNeg) || 0,
       };
       const response = await api.put(`/hospitals/${id}`, updated);
       setHospitals(hospitals.map((h) => (h.id === id ? response.data : h)));
@@ -167,6 +186,7 @@ function HospitalList() {
                 <th>Address</th>
                 <th>ICU Beds</th>
                 <th>Blood Bank</th>
+                <th>Blood Units</th>
                 <th>Doctors</th>
                 <th>Emergency Types</th>
                 <th>Contact</th>
@@ -195,12 +215,33 @@ function HospitalList() {
                           /
                           <input style={{ ...editInputStyle, width: "45px" }} type="number" value={editForm.totalIcuBeds} onChange={(e) => handleEditChange("totalIcuBeds", e.target.value)} />
                         </td>
+
                         <td>
                           <select style={editInputStyle} value={editForm.bloodBankAvailable} onChange={(e) => handleEditChange("bloodBankAvailable", e.target.value === "true")}>
                             <option value="true">Yes</option>
                             <option value="false">No</option>
                           </select>
                         </td>
+                                                <td style={{ minWidth: "200px" }}>
+                          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "3px" }}>
+                            {["APos:A+", "ANeg:A-", "BPos:B+", "BNeg:B-", "OPos:O+", "ONeg:O-", "ABPos:AB+", "ABNeg:AB-"].map((entry) => {
+                              const [field, label] = entry.split(":");
+                              return (
+                                <div key={field} style={{ display: "flex", alignItems: "center", gap: "3px", fontSize: "11px" }}>
+                                  <span style={{ width: "26px" }}>{label}</span>
+                                  <input
+                                    type="number"
+                                    min="0"
+                                    style={{ ...editInputStyle, width: "45px", padding: "3px 5px" }}
+                                    value={editForm[`blood${field}`]}
+                                    onChange={(e) => handleEditChange(`blood${field}`, e.target.value)}
+                                  />
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </td>
+                        
                         <td><input style={{ ...editInputStyle, width: "60px" }} type="number" value={editForm.availableDoctors} onChange={(e) => handleEditChange("availableDoctors", e.target.value)} /></td>
                         <td style={{ minWidth: "220px" }}>
                           <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
@@ -241,6 +282,37 @@ function HospitalList() {
                         <td>{hospital.address}</td>
                         <td><b>{hospital.availableIcuBeds}</b> / {hospital.totalIcuBeds}</td>
                         <td>{hospital.bloodBankAvailable ? "✅" : "❌"}</td>
+                                                <td style={{ minWidth: "180px" }}>
+                          {hospital.bloodBankAvailable ? (
+                            <div style={{ display: "flex", flexWrap: "wrap", gap: "4px" }}>
+                              {[
+                                ["A+", hospital.bloodAPos], ["A-", hospital.bloodANeg],
+                                ["B+", hospital.bloodBPos], ["B-", hospital.bloodBNeg],
+                                ["O+", hospital.bloodOPos], ["O-", hospital.bloodONeg],
+                                ["AB+", hospital.bloodABPos], ["AB-", hospital.bloodABNeg],
+                              ].filter(([, count]) => count > 0).map(([label, count]) => (
+                                <span
+                                  key={label}
+                                  style={{
+                                    background: count < 3 ? "rgba(230,57,70,0.12)" : "rgba(42,157,143,0.12)",
+                                    color: count < 3 ? "#e63946" : "#2a9d8f",
+                                    padding: "2px 8px",
+                                    borderRadius: "10px",
+                                    fontSize: "11px",
+                                    fontWeight: "700",
+                                  }}
+                                >
+                                  {label}: {count}
+                                </span>
+                              ))}
+                              {[hospital.bloodAPos, hospital.bloodANeg, hospital.bloodBPos, hospital.bloodBNeg, hospital.bloodOPos, hospital.bloodONeg, hospital.bloodABPos, hospital.bloodABNeg].every((c) => !c) && (
+                                <span style={{ fontSize: "11px", color: "#999" }}>Not set</span>
+                              )}
+                            </div>
+                          ) : (
+                            <span style={{ fontSize: "12px", color: "#999" }}>N/A</span>
+                          )}
+                        </td>
                         <td>{hospital.availableDoctors}</td>
                         <td style={{ minWidth: "180px" }}>
                           <div style={{ display: "flex", flexWrap: "wrap", gap: "4px" }}>
