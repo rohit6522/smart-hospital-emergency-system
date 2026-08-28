@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { useSearchParams } from "react-router-dom";
 import { MapContainer, TileLayer, Marker, Popup, Polyline } from "react-leaflet";
 import api from "../services/api";
 import { requestNotificationPermission, listenForMessages } from "../firebase";
@@ -15,6 +16,7 @@ function RequestEmergency() {
   const [searched, setSearched] = useState(false);
   const [etaSeconds, setEtaSeconds] = useState(null);
   const timerRef = useRef(null);
+    const [searchParams] = useSearchParams();
 
   useEffect(() => {
     requestNotificationPermission();
@@ -55,6 +57,49 @@ function RequestEmergency() {
       }
     );
   };
+
+    useEffect(() => {
+    const lat = searchParams.get("lat");
+    const lon = searchParams.get("lon");
+    const type = searchParams.get("type");
+    const auto = searchParams.get("auto");
+
+    if (auto === "true" && lat && lon) {
+      setLatitude(lat);
+      setLongitude(lon);
+      setEmergencyType(type || "General");
+
+      // Trigger search automatically after state updates
+      setTimeout(() => {
+        setError(null);
+        setLoading(true);
+        setSearched(true);
+        setEtaSeconds(null);
+
+        api
+          .get("/hospitals/nearest", {
+            params: { latitude: parseFloat(lat), longitude: parseFloat(lon), emergencyType: type || "General" },
+          })
+          .then((response) => {
+            setResults(response.data);
+            if (response.data.length > 0) {
+              const bestDistance = response.data[0].distanceInKm;
+              const etaMinutes = Math.max(1, (bestDistance / AVERAGE_AMBULANCE_SPEED_KMH) * 60);
+              setEtaSeconds(Math.round(etaMinutes * 60));
+            }
+            if (Notification.permission === "granted") {
+              new Notification("🚨 SOS Emergency Triggered", {
+                body: `Best match: ${response.data[0]?.hospital.name || "Searching..."}`,
+                icon: "/vite.svg",
+              });
+            }
+          })
+          .catch(() => setError("Failed to find hospitals. Please check your inputs and try again."))
+          .finally(() => setLoading(false));
+      }, 100);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
