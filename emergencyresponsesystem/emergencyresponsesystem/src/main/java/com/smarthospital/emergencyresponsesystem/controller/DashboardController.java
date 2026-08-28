@@ -56,7 +56,9 @@ public class DashboardController {
                 .count();
 
         Map<String, Long> emergencyTypeBreakdown = hospitals.stream()
-                .collect(Collectors.groupingBy(Hospital::getEmergencyType, Collectors.counting()));
+                .filter(h -> h.getEmergencyTypes() != null)
+                .flatMap(h -> h.getEmergencyTypes().stream())
+                .collect(Collectors.groupingBy(type -> type, Collectors.counting()));
 
         Map<String, Long> ambulanceStatusBreakdown = ambulances.stream()
                 .collect(Collectors.groupingBy(Ambulance::getStatus, Collectors.counting()));
