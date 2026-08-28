@@ -1,7 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { MapContainer, TileLayer, Marker, Popup, Polyline } from "react-leaflet";
 import api from "../services/api";
 import { requestNotificationPermission, listenForMessages } from "../firebase";
+
+const AVERAGE_AMBULANCE_SPEED_KMH = 40;
 
 function RequestEmergency() {
   const [latitude, setLatitude] = useState("");
@@ -11,11 +13,32 @@ function RequestEmergency() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [searched, setSearched] = useState(false);
+  const [etaSeconds, setEtaSeconds] = useState(null);
+  const timerRef = useRef(null);
 
   useEffect(() => {
     requestNotificationPermission();
     listenForMessages();
   }, []);
+
+  // Countdown timer effect
+  useEffect(() => {
+    if (etaSeconds === null) return;
+
+    if (timerRef.current) clearInterval(timerRef.current);
+
+    timerRef.current = setInterval(() => {
+      setEtaSeconds((prev) => {
+        if (prev === null || prev <= 1) {
+          clearInterval(timerRef.current);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(timerRef.current);
+  }, [etaSeconds === null]);
 
   const detectLocation = () => {
     if (!navigator.geolocation) {
@@ -38,6 +61,8 @@ function RequestEmergency() {
     setError(null);
     setLoading(true);
     setSearched(true);
+    setEtaSeconds(null);
+    if (timerRef.current) clearInterval(timerRef.current);
 
     try {
       const response = await api.get("/hospitals/nearest", {
@@ -48,6 +73,12 @@ function RequestEmergency() {
         },
       });
       setResults(response.data);
+
+      if (response.data.length > 0) {
+        const bestDistance = response.data[0].distanceInKm;
+        const etaMinutes = Math.max(1, (bestDistance / AVERAGE_AMBULANCE_SPEED_KMH) * 60);
+        setEtaSeconds(Math.round(etaMinutes * 60));
+      }
 
       if (Notification.permission === "granted") {
         new Notification("🚨 Emergency Request Submitted", {
@@ -60,6 +91,12 @@ function RequestEmergency() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const formatTime = (totalSeconds) => {
+    const mins = Math.floor(totalSeconds / 60);
+    const secs = totalSeconds % 60;
+    return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
 
   const patientLat = parseFloat(latitude);
@@ -147,7 +184,7 @@ function RequestEmergency() {
 
         <div style={{ marginBottom: "24px" }}>
           <label style={labelStyle}>Emergency Type</label>
-                  <select
+          <select
             value={emergencyType}
             onChange={(e) => setEmergencyType(e.target.value)}
             style={inputStyle}
@@ -195,6 +232,44 @@ function RequestEmergency() {
 
       {!loading && searched && results.length === 0 && !error && (
         <p style={{ marginTop: "20px", textAlign: "center" }}>No hospitals found in the system yet.</p>
+      )}
+
+      {/* ETA COUNTDOWN CARD */}
+      {bestHospital && etaSeconds !== null && (
+        <div
+          className="glass-card animate-fade-up"
+          style={{
+            marginTop: "30px",
+            padding: "24px 30px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            flexWrap: "wrap",
+            gap: "16px",
+            background: "linear-gradient(135deg, rgba(230,57,70,0.08), rgba(230,57,70,0.02))",
+            border: "1px solid rgba(230,57,70,0.2)",
+          }}
+        >
+          <div>
+            <div style={{ fontSize: "12px", fontWeight: "700", color: "#e63946", letterSpacing: "0.5px", textTransform: "uppercase" }}>
+              🚑 Estimated Ambulance Arrival
+            </div>
+            <div style={{ fontSize: "13px", color: "#6c757d", marginTop: "4px" }}>
+              To {bestHospital.hospital.name} · {bestHospital.distanceInKm.toFixed(1)} km away
+            </div>
+          </div>
+          <div
+            style={{
+              fontSize: "36px",
+              fontWeight: "800",
+              color: etaSeconds <= 0 ? "#2a9d8f" : "#e63946",
+              fontVariantNumeric: "tabular-nums",
+              letterSpacing: "1px",
+            }}
+          >
+            {etaSeconds <= 0 ? "Arrived 🎉" : formatTime(etaSeconds)}
+          </div>
+        </div>
       )}
 
       {/* MAP SECTION */}
