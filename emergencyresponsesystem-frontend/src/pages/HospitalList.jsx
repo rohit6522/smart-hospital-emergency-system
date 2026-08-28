@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import api from "../services/api";
 import { useAuth } from "../context/AuthContext";
 
+const EMERGENCY_TYPES = ["Trauma", "Cardiac", "Accident", "Pediatric", "Neuro", "Burns", "Poisoning", "Maternity", "Respiratory", "General"];
+
 function HospitalList() {
   const [hospitals, setHospitals] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -42,7 +44,7 @@ function HospitalList() {
 
   const startEdit = (hospital) => {
     setEditingId(hospital.id);
-    setEditForm({ ...hospital });
+    setEditForm({ ...hospital, emergencyTypes: hospital.emergencyTypes || [] });
   };
 
   const cancelEdit = () => {
@@ -54,7 +56,20 @@ function HospitalList() {
     setEditForm({ ...editForm, [field]: value });
   };
 
+  const toggleEmergencyType = (type) => {
+    const current = editForm.emergencyTypes || [];
+    if (current.includes(type)) {
+      handleEditChange("emergencyTypes", current.filter((t) => t !== type));
+    } else {
+      handleEditChange("emergencyTypes", [...current, type]);
+    }
+  };
+
   const saveEdit = async (id) => {
+    if (!editForm.emergencyTypes || editForm.emergencyTypes.length === 0) {
+      alert("Please select at least one emergency type.");
+      return;
+    }
     try {
       const updated = {
         ...editForm,
@@ -73,12 +88,12 @@ function HospitalList() {
   if (loading) return <p style={{ padding: "20px" }}>Loading hospitals...</p>;
   if (error) return <p style={{ padding: "20px", color: "red" }}>{error}</p>;
 
-  const emergencyTypes = ["All", ...new Set(hospitals.map((h) => h.emergencyType))];
+  const emergencyTypesInData = ["All", ...new Set(hospitals.flatMap((h) => h.emergencyTypes || []))];
 
   const filteredHospitals = hospitals.filter((hospital) => {
     const matchesSearch = hospital.name.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesEmergency =
-      emergencyFilter === "All" || hospital.emergencyType === emergencyFilter;
+      emergencyFilter === "All" || (hospital.emergencyTypes || []).includes(emergencyFilter);
     const matchesIcu = !onlyAvailableIcu || hospital.availableIcuBeds > 0;
     return matchesSearch && matchesEmergency && matchesIcu;
   });
@@ -119,7 +134,7 @@ function HospitalList() {
           onChange={(e) => setEmergencyFilter(e.target.value)}
           style={inputStyle}
         >
-          {emergencyTypes.map((type) => (
+          {emergencyTypesInData.map((type) => (
             <option key={type} value={type}>
               {type}
             </option>
@@ -153,7 +168,7 @@ function HospitalList() {
                 <th>ICU Beds</th>
                 <th>Blood Bank</th>
                 <th>Doctors</th>
-                <th>Emergency Type</th>
+                <th>Emergency Types</th>
                 <th>Contact</th>
                 {isAdmin && <th>Actions</th>}
               </tr>
@@ -187,19 +202,32 @@ function HospitalList() {
                           </select>
                         </td>
                         <td><input style={{ ...editInputStyle, width: "60px" }} type="number" value={editForm.availableDoctors} onChange={(e) => handleEditChange("availableDoctors", e.target.value)} /></td>
-                                               <td>
-                          <select style={editInputStyle} value={editForm.emergencyType} onChange={(e) => handleEditChange("emergencyType", e.target.value)}>
-                            <option value="Trauma">Trauma</option>
-                            <option value="Cardiac">Cardiac</option>
-                            <option value="Accident">Accident</option>
-                            <option value="Pediatric">Pediatric</option>
-                            <option value="Neuro">Neuro</option>
-                            <option value="Burns">Burns</option>
-                            <option value="Poisoning">Poisoning</option>
-                            <option value="Maternity">Maternity</option>
-                            <option value="Respiratory">Respiratory</option>
-                            <option value="General">General</option>
-                          </select>
+                        <td style={{ minWidth: "220px" }}>
+                          <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
+                            {EMERGENCY_TYPES.map((type) => (
+                              <label
+                                key={type}
+                                style={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  gap: "3px",
+                                  fontSize: "11px",
+                                  background: (editForm.emergencyTypes || []).includes(type) ? "rgba(69,123,157,0.15)" : "rgba(0,0,0,0.03)",
+                                  padding: "3px 7px",
+                                  borderRadius: "8px",
+                                  cursor: "pointer",
+                                }}
+                              >
+                                <input
+                                  type="checkbox"
+                                  checked={(editForm.emergencyTypes || []).includes(type)}
+                                  onChange={() => toggleEmergencyType(type)}
+                                  style={{ margin: 0 }}
+                                />
+                                {type}
+                              </label>
+                            ))}
+                          </div>
                         </td>
                         <td><input style={editInputStyle} value={editForm.contactNumber} onChange={(e) => handleEditChange("contactNumber", e.target.value)} /></td>
                         <td style={{ display: "flex", gap: "6px" }}>
@@ -214,10 +242,21 @@ function HospitalList() {
                         <td><b>{hospital.availableIcuBeds}</b> / {hospital.totalIcuBeds}</td>
                         <td>{hospital.bloodBankAvailable ? "✅" : "❌"}</td>
                         <td>{hospital.availableDoctors}</td>
-                        <td>
-                          <span style={{ background: "rgba(69,123,157,0.15)", color: "#457b9d", padding: "3px 10px", borderRadius: "12px", fontSize: "12px", fontWeight: "600" }}>
-                            {hospital.emergencyType}
-                          </span>
+                        <td style={{ minWidth: "180px" }}>
+                          <div style={{ display: "flex", flexWrap: "wrap", gap: "4px" }}>
+                            {(hospital.emergencyTypes || []).length === 0 ? (
+                              <span style={{ color: "#999", fontSize: "12px" }}>Not set</span>
+                            ) : (
+                              hospital.emergencyTypes.map((type) => (
+                                <span
+                                  key={type}
+                                  style={{ background: "rgba(69,123,157,0.15)", color: "#457b9d", padding: "3px 9px", borderRadius: "12px", fontSize: "11px", fontWeight: "600" }}
+                                >
+                                  {type}
+                                </span>
+                              ))
+                            )}
+                          </div>
                         </td>
                         <td>{hospital.contactNumber}</td>
                         {isAdmin && (
