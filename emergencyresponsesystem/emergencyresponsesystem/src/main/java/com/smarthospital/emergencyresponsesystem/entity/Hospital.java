@@ -36,8 +36,10 @@ public class Hospital {
 
     private Integer availableDoctors;
 
-    @Column(nullable = false)
-    private String emergencyType; // e.g. "Cardiac", "Trauma", "General", "Pediatric"
+    @ElementCollection
+    @CollectionTable(name = "hospital_emergency_types", joinColumns = @JoinColumn(name = "hospital_id"))
+    @Column(name = "emergency_type")
+    private java.util.List<String> emergencyTypes = new java.util.ArrayList<>();
 
     private String contactNumber;
 }

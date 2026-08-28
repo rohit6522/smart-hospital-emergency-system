@@ -101,9 +101,9 @@ public class HospitalService {
             score += hospital.getAvailableDoctors() * 2;
         }
 
-        // Emergency type exact match bonus (big boost)
-        if (hospital.getEmergencyType() != null &&
-                hospital.getEmergencyType().equalsIgnoreCase(emergencyType)) {
+        // Emergency type match bonus (big boost) - checks if hospital's list contains the requested type
+        if (hospital.getEmergencyTypes() != null &&
+                hospital.getEmergencyTypes().stream().anyMatch(t -> t.equalsIgnoreCase(emergencyType))) {
             score += 25;
         }
 
