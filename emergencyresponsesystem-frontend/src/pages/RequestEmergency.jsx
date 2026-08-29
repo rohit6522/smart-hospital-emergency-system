@@ -7,6 +7,7 @@ import { requestNotificationPermission, listenForMessages } from "../firebase";
 const AVERAGE_AMBULANCE_SPEED_KMH = 40;
 
 function RequestEmergency() {
+  const [searchParams] = useSearchParams();
   const [latitude, setLatitude] = useState("");
   const [longitude, setLongitude] = useState("");
   const [emergencyType, setEmergencyType] = useState("Trauma");
@@ -16,7 +17,6 @@ function RequestEmergency() {
   const [searched, setSearched] = useState(false);
   const [etaSeconds, setEtaSeconds] = useState(null);
   const timerRef = useRef(null);
-    const [searchParams] = useSearchParams();
 
   useEffect(() => {
     requestNotificationPermission();
@@ -26,7 +26,6 @@ function RequestEmergency() {
   // Countdown timer effect
   useEffect(() => {
     if (etaSeconds === null) return;
-
     if (timerRef.current) clearInterval(timerRef.current);
 
     timerRef.current = setInterval(() => {
@@ -41,6 +40,78 @@ function RequestEmergency() {
 
     return () => clearInterval(timerRef.current);
   }, [etaSeconds === null]);
+
+  // Logs an EmergencyRequest record for analytics, and auto-marks it completed
+  // after a short demo delay so the dashboard has response-time data to show.
+  const logEmergencyRequestForAnalytics = async (bestResult) => {
+    try {
+      const created = await api.post("/emergency-requests", {
+        hospitalId: bestResult.hospital.id,
+        emergencyType: emergencyType,
+        pickupLatitude: parseFloat(latitude),
+        pickupLongitude: parseFloat(longitude),
+        status: "REQUESTED",
+      });
+
+      const etaMs = Math.max(1, (bestResult.distanceInKm / AVERAGE_AMBULANCE_SPEED_KMH) * 60) * 60 * 1000;
+      const demoDelay = Math.min(etaMs, 15000); // capped at 15s so analytics data appears quickly for demo
+
+      setTimeout(() => {
+        api.put(`/emergency-requests/${created.data.id}/complete`).catch(() => {});
+      }, demoDelay);
+    } catch (err) {
+      console.log("Could not log emergency request for analytics", err);
+    }
+  };
+
+  const runSearch = async (lat, lon, type) => {
+    setError(null);
+    setLoading(true);
+    setSearched(true);
+    setEtaSeconds(null);
+
+    try {
+      const response = await api.get("/hospitals/nearest", {
+        params: { latitude: parseFloat(lat), longitude: parseFloat(lon), emergencyType: type },
+      });
+      setResults(response.data);
+
+      if (response.data.length > 0) {
+        const best = response.data[0];
+        const etaMinutes = Math.max(1, (best.distanceInKm / AVERAGE_AMBULANCE_SPEED_KMH) * 60);
+        setEtaSeconds(Math.round(etaMinutes * 60));
+
+        if (Notification.permission === "granted") {
+          new Notification("🚨 Emergency Request Submitted", {
+            body: `Best match: ${best.hospital.name}`,
+            icon: "/vite.svg",
+          });
+        }
+
+        await logEmergencyRequestForAnalytics(best);
+      }
+    } catch (err) {
+      setError("Failed to find hospitals. Please check your inputs and try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Auto-trigger search if arriving from the SOS button with lat/lon/type in the URL
+  useEffect(() => {
+    const lat = searchParams.get("lat");
+    const lon = searchParams.get("lon");
+    const type = searchParams.get("type");
+    const auto = searchParams.get("auto");
+
+    if (auto === "true" && lat && lon) {
+      setLatitude(lat);
+      setLongitude(lon);
+      setEmergencyType(type || "General");
+      runSearch(lat, lon, type || "General");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const detectLocation = () => {
     if (!navigator.geolocation) {
@@ -58,100 +129,9 @@ function RequestEmergency() {
     );
   };
 
-    useEffect(() => {
-    const lat = searchParams.get("lat");
-    const lon = searchParams.get("lon");
-    const type = searchParams.get("type");
-    const auto = searchParams.get("auto");
-
-    if (auto === "true" && lat && lon) {
-      setLatitude(lat);
-      setLongitude(lon);
-      setEmergencyType(type || "General");
-
-      // Trigger search automatically after state updates
-      setTimeout(() => {
-        setError(null);
-        setLoading(true);
-        setSearched(true);
-        setEtaSeconds(null);
-
-        api
-          .get("/hospitals/nearest", {
-            params: { latitude: parseFloat(lat), longitude: parseFloat(lon), emergencyType: type || "General" },
-          })
-          .then((response) => {
-            setResults(response.data);
-                 // Create an emergency request record for analytics tracking
-      if (response.data.length > 0) {
-        try {
-          const created = await api.post("/emergency-requests", {
-            hospitalId: response.data[0].hospital.id,
-            emergencyType: emergencyType,
-            pickupLatitude: parseFloat(latitude),
-            pickupLongitude: parseFloat(longitude),
-            status: "REQUESTED",
-          });
-          // Simulate completion after ETA time (for demo/analytics purposes)
-          const bestDistance = response.data[0].distanceInKm;
-          const etaMs = Math.max(1, (bestDistance / AVERAGE_AMBULANCE_SPEED_KMH) * 60) * 60 * 1000;
-          setTimeout(() => {
-            api.put(`/emergency-requests/${created.data.id}/complete`).catch(() => {});
-          }, Math.min(etaMs, 15000)); // capped at 15s for demo purposes so data populates quickly
-        } catch (err) {
-          console.log("Could not log emergency request for analytics", err);
-        }
-      }
-
-            if (Notification.permission === "granted") {
-              new Notification("🚨 SOS Emergency Triggered", {
-                body: `Best match: ${response.data[0]?.hospital.name || "Searching..."}`,
-                icon: "/vite.svg",
-              });
-            }
-          })
-          .catch(() => setError("Failed to find hospitals. Please check your inputs and try again."))
-          .finally(() => setLoading(false));
-      }, 100);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError(null);
-    setLoading(true);
-    setSearched(true);
-    setEtaSeconds(null);
-    if (timerRef.current) clearInterval(timerRef.current);
-
-    try {
-      const response = await api.get("/hospitals/nearest", {
-        params: {
-          latitude: parseFloat(latitude),
-          longitude: parseFloat(longitude),
-          emergencyType: emergencyType,
-        },
-      });
-      setResults(response.data);
-
-      if (response.data.length > 0) {
-        const bestDistance = response.data[0].distanceInKm;
-        const etaMinutes = Math.max(1, (bestDistance / AVERAGE_AMBULANCE_SPEED_KMH) * 60);
-        setEtaSeconds(Math.round(etaMinutes * 60));
-      }
-
-      if (Notification.permission === "granted") {
-        new Notification("🚨 Emergency Request Submitted", {
-          body: `Best match: ${response.data[0]?.hospital.name || "Searching..."}`,
-          icon: "/vite.svg",
-        });
-      }
-    } catch (err) {
-      setError("Failed to find hospitals. Please check your inputs and try again.");
-    } finally {
-      setLoading(false);
-    }
+    await runSearch(latitude, longitude, emergencyType);
   };
 
   const formatTime = (totalSeconds) => {
