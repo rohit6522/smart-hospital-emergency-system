@@ -135,6 +135,28 @@ function AdminDashboard() {
             <p style={{ color: "#6c757d", fontSize: "14px" }}>No data available yet.</p>
           )}
         </div>
+
+         {/* Bar Chart - Average Response Time by Hospital */}
+        <div className="glass-card animate-fade-up stagger-3" style={{ padding: "24px" }}>
+          <h3 style={{ marginTop: 0, marginBottom: "16px", fontSize: "16px" }}>Avg Response Time by Hospital (min)</h3>
+          {stats.avgResponseTimeByHospital && Object.keys(stats.avgResponseTimeByHospital).length > 0 ? (
+            <ResponsiveContainer width="100%" height={280}>
+              <BarChart
+                data={Object.entries(stats.avgResponseTimeByHospital).map(([name, minutes]) => ({ name, minutes }))}
+                layout="vertical"
+                margin={{ left: 20 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis type="number" fontSize={12} />
+                <YAxis dataKey="name" type="category" width={140} fontSize={11} />
+                <Tooltip />
+                <Bar dataKey="minutes" fill="#2a9d8f" radius={[0, 6, 6, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          ) : (
+            <p style={{ color: "#6c757d", fontSize: "14px" }}>No completed requests yet. Submit an emergency request to see data here.</p>
+          )}
+        </div>
       </div>
     </div>
   );

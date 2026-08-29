@@ -82,11 +82,27 @@ function RequestEmergency() {
           })
           .then((response) => {
             setResults(response.data);
-            if (response.data.length > 0) {
-              const bestDistance = response.data[0].distanceInKm;
-              const etaMinutes = Math.max(1, (bestDistance / AVERAGE_AMBULANCE_SPEED_KMH) * 60);
-              setEtaSeconds(Math.round(etaMinutes * 60));
-            }
+                 // Create an emergency request record for analytics tracking
+      if (response.data.length > 0) {
+        try {
+          const created = await api.post("/emergency-requests", {
+            hospitalId: response.data[0].hospital.id,
+            emergencyType: emergencyType,
+            pickupLatitude: parseFloat(latitude),
+            pickupLongitude: parseFloat(longitude),
+            status: "REQUESTED",
+          });
+          // Simulate completion after ETA time (for demo/analytics purposes)
+          const bestDistance = response.data[0].distanceInKm;
+          const etaMs = Math.max(1, (bestDistance / AVERAGE_AMBULANCE_SPEED_KMH) * 60) * 60 * 1000;
+          setTimeout(() => {
+            api.put(`/emergency-requests/${created.data.id}/complete`).catch(() => {});
+          }, Math.min(etaMs, 15000)); // capped at 15s for demo purposes so data populates quickly
+        } catch (err) {
+          console.log("Could not log emergency request for analytics", err);
+        }
+      }
+
             if (Notification.permission === "granted") {
               new Notification("🚨 SOS Emergency Triggered", {
                 body: `Best match: ${response.data[0]?.hospital.name || "Searching..."}`,
