@@ -25,6 +25,7 @@ html, body {
   min-height: 100%;
   font-family: "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   color: var(--text-dark);
+   scroll-behavior: smooth;
 }
 
 body {
