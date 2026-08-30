@@ -12,6 +12,9 @@ function RequestEmergency() {
   const [latitude, setLatitude] = useState("");
   const [longitude, setLongitude] = useState("");
   const [emergencyType, setEmergencyType] = useState("Trauma");
+    const [symptoms, setSymptoms] = useState("");
+  const [severityResult, setSeverityResult] = useState(null);
+  const [classifying, setClassifying] = useState(false);
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -167,6 +170,22 @@ function RequestEmergency() {
     );
   };
 
+      const classifySeverity = async () => {
+    if (!symptoms.trim()) return;
+    setClassifying(true);
+    try {
+      const response = await api.post("/ai/classify-severity", { symptoms });
+      setSeverityResult(response.data);
+      if (response.data.severity === "CRITICAL") {
+        setEmergencyType("Trauma");
+      }
+    } catch (err) {
+      console.log("Severity classification failed", err);
+    } finally {
+      setClassifying(false);
+    }
+  };
+
     const handleSubmit = async (e) => {
     e.preventDefault();
     await runSearch(latitude, longitude, emergencyType);
@@ -259,6 +278,38 @@ function RequestEmergency() {
               style={inputStyle}
             />
           </div>
+        </div>
+
+                <div style={{ marginBottom: "22px" }}>
+          <label style={labelStyle}>🤖 Describe Symptoms (AI Severity Check)</label>
+          <textarea
+            value={symptoms}
+            onChange={(e) => setSymptoms(e.target.value)}
+            onBlur={classifySeverity}
+            placeholder="e.g. severe chest pain, difficulty breathing..."
+            rows="2"
+            style={{ ...inputStyle, resize: "vertical" }}
+          />
+          {classifying && <p style={{ fontSize: "12px", color: "#457b9d", marginTop: "4px" }}>Analyzing symptoms...</p>}
+          {severityResult && severityResult.severity !== "UNKNOWN" && (
+            <div
+              style={{
+                marginTop: "8px",
+                padding: "10px 14px",
+                borderRadius: "8px",
+                fontSize: "13px",
+                background:
+                  severityResult.severity === "CRITICAL" ? "rgba(230,57,70,0.1)" :
+                  severityResult.severity === "MODERATE" ? "rgba(233,196,106,0.15)" : "rgba(42,157,143,0.1)",
+                color:
+                  severityResult.severity === "CRITICAL" ? "#e63946" :
+                  severityResult.severity === "MODERATE" ? "#c78a1e" : "#2a9d8f",
+                fontWeight: "600",
+              }}
+            >
+              🎯 AI Severity: {severityResult.severity} — {severityResult.recommendation}
+            </div>
+          )}
         </div>
 
         <div style={{ marginBottom: "24px" }}>
