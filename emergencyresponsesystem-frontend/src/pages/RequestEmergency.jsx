@@ -5,6 +5,7 @@ import api from "../services/api";
 import { requestNotificationPermission, listenForMessages } from "../firebase";
 
 const AVERAGE_AMBULANCE_SPEED_KMH = 40;
+const OSRM_BASE_URL = "https://router.project-osrm.org/route/v1/driving";
 
 function RequestEmergency() {
   const [searchParams] = useSearchParams();
@@ -16,6 +17,8 @@ function RequestEmergency() {
   const [error, setError] = useState(null);
   const [searched, setSearched] = useState(false);
   const [etaSeconds, setEtaSeconds] = useState(null);
+    const [routeCoordinates, setRouteCoordinates] = useState(null);
+  const [routeInfo, setRouteInfo] = useState(null); // { distanceKm, durationMin }
   const timerRef = useRef(null);
 
   useEffect(() => {
@@ -64,6 +67,29 @@ function RequestEmergency() {
     }
   };
 
+    const fetchRoadRoute = async (lat1, lon1, lat2, lon2) => {
+    try {
+      const url = `${OSRM_BASE_URL}/${lon1},${lat1};${lon2},${lat2}?overview=full&geometries=geojson`;
+      const res = await fetch(url);
+      const data = await res.json();
+
+      if (data.code !== "Ok" || !data.routes || data.routes.length === 0) return null;
+
+      const route = data.routes[0];
+      // OSRM returns [lon, lat] pairs; Leaflet needs [lat, lon]
+      const coordinates = route.geometry.coordinates.map(([lon, lat]) => [lat, lon]);
+
+      return {
+        coordinates,
+        distanceKm: route.distance / 1000,
+        durationMin: route.duration / 60,
+      };
+    } catch (err) {
+      console.log("OSRM routing failed, falling back to straight-line", err);
+      return null;
+    }
+  };
+
   const runSearch = async (lat, lon, type) => {
     setError(null);
     setLoading(true);
@@ -76,10 +102,22 @@ function RequestEmergency() {
       });
       setResults(response.data);
 
-      if (response.data.length > 0) {
+           if (response.data.length > 0) {
         const best = response.data[0];
-        const etaMinutes = Math.max(1, (best.distanceInKm / AVERAGE_AMBULANCE_SPEED_KMH) * 60);
-        setEtaSeconds(Math.round(etaMinutes * 60));
+
+        // Try to get a real road route from OSRM; fall back to straight-line ETA if it fails
+        const roadRoute = await fetchRoadRoute(lat, lon, best.hospital.latitude, best.hospital.longitude);
+
+        if (roadRoute) {
+          setRouteCoordinates(roadRoute.coordinates);
+          setRouteInfo({ distanceKm: roadRoute.distanceKm, durationMin: roadRoute.durationMin });
+          setEtaSeconds(Math.round(roadRoute.durationMin * 60));
+        } else {
+          setRouteCoordinates(null);
+          setRouteInfo(null);
+          const etaMinutes = Math.max(1, (best.distanceInKm / AVERAGE_AMBULANCE_SPEED_KMH) * 60);
+          setEtaSeconds(Math.round(etaMinutes * 60));
+        }
 
         if (Notification.permission === "granted") {
           new Notification("🚨 Emergency Request Submitted", {
@@ -129,7 +167,7 @@ function RequestEmergency() {
     );
   };
 
-  const handleSubmit = async (e) => {
+    const handleSubmit = async (e) => {
     e.preventDefault();
     await runSearch(latitude, longitude, emergencyType);
   };
@@ -295,8 +333,8 @@ function RequestEmergency() {
             <div style={{ fontSize: "12px", fontWeight: "700", color: "#e63946", letterSpacing: "0.5px", textTransform: "uppercase" }}>
               🚑 Estimated Ambulance Arrival
             </div>
-            <div style={{ fontSize: "13px", color: "#6c757d", marginTop: "4px" }}>
-              To {bestHospital.hospital.name} · {bestHospital.distanceInKm.toFixed(1)} km away
+                       <div style={{ fontSize: "13px", color: "#6c757d", marginTop: "4px" }}>
+              To {bestHospital.hospital.name} · {routeInfo ? `${routeInfo.distanceKm.toFixed(1)} km road distance` : `${bestHospital.distanceInKm.toFixed(1)} km (straight-line)`}
             </div>
           </div>
           <div
@@ -355,16 +393,25 @@ function RequestEmergency() {
                 </Marker>
               ))}
 
-              {bestHospital && (
+                           {routeCoordinates ? (
                 <Polyline
-                  positions={[
-                    [patientLat, patientLon],
-                    [bestHospital.hospital.latitude, bestHospital.hospital.longitude],
-                  ]}
+                  positions={routeCoordinates}
                   color="#e63946"
-                  weight={4}
-                  dashArray="8"
+                  weight={5}
+                  opacity={0.85}
                 />
+              ) : (
+                bestHospital && (
+                  <Polyline
+                    positions={[
+                      [patientLat, patientLon],
+                      [bestHospital.hospital.latitude, bestHospital.hospital.longitude],
+                    ]}
+                    color="#e63946"
+                    weight={4}
+                    dashArray="8"
+                  />
+                )
               )}
             </MapContainer>
           </div>
