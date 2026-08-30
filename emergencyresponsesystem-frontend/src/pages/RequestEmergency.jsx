@@ -75,6 +75,23 @@ function RequestEmergency() {
     }
   };
 
+
+    const resetSearch = () => {
+    setLatitude("");
+    setLongitude("");
+    setPlaceQuery("");
+    setSymptoms("");
+    setSeverityResult(null);
+    setEmergencyType("Trauma");
+    setResults([]);
+    setSearched(false);
+    setError(null);
+    setEtaSeconds(null);
+    setRouteCoordinates(null);
+    setRouteInfo(null);
+    if (timerRef.current) clearInterval(timerRef.current);
+  };
+
   const fetchRoadRoute = async (lat1, lon1, lat2, lon2) => {
     try {
       const url = `${OSRM_BASE_URL}/${lon1},${lat1};${lon2},${lat2}?overview=full&geometries=geojson`;
@@ -458,7 +475,7 @@ function RequestEmergency() {
       )}
 
       {/* ETA COUNTDOWN CARD */}
-      {bestHospital && etaSeconds !== null && (
+           {bestHospital && etaSeconds !== null && (
         <div
           className="glass-card animate-fade-up"
           style={{
@@ -481,16 +498,34 @@ function RequestEmergency() {
               To {bestHospital.hospital.name} · {routeInfo ? `${routeInfo.distanceKm.toFixed(1)} km road distance` : `${bestHospital.distanceInKm.toFixed(1)} km (straight-line)`}
             </div>
           </div>
-          <div
-            style={{
-              fontSize: "36px",
-              fontWeight: "800",
-              color: etaSeconds <= 0 ? "#2a9d8f" : "#e63946",
-              fontVariantNumeric: "tabular-nums",
-              letterSpacing: "1px",
-            }}
-          >
-            {etaSeconds <= 0 ? "Arrived 🎉" : formatTime(etaSeconds)}
+          <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+            <div
+              style={{
+                fontSize: "36px",
+                fontWeight: "800",
+                color: etaSeconds <= 0 ? "#2a9d8f" : "#e63946",
+                fontVariantNumeric: "tabular-nums",
+                letterSpacing: "1px",
+              }}
+            >
+              {etaSeconds <= 0 ? "Arrived 🎉" : formatTime(etaSeconds)}
+            </div>
+            <button
+              onClick={resetSearch}
+              style={{
+                padding: "8px 16px",
+                background: "rgba(0,0,0,0.06)",
+                color: "#555",
+                border: "1px solid rgba(0,0,0,0.1)",
+                borderRadius: "8px",
+                fontSize: "13px",
+                fontWeight: "600",
+                cursor: "pointer",
+                whiteSpace: "nowrap",
+              }}
+            >
+              🔄 New Search
+            </button>
           </div>
         </div>
       )}
