@@ -12,7 +12,12 @@ function RequestEmergency() {
   const [latitude, setLatitude] = useState("");
   const [longitude, setLongitude] = useState("");
   const [emergencyType, setEmergencyType] = useState("Trauma");
-    const [symptoms, setSymptoms] = useState("");
+  const [symptoms, setSymptoms] = useState("");
+  const [placeQuery, setPlaceQuery] = useState("");
+  const [placeSuggestions, setPlaceSuggestions] = useState([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [searchingPlace, setSearchingPlace] = useState(false);
+  const debounceRef = useRef(null);
   const [severityResult, setSeverityResult] = useState(null);
   const [classifying, setClassifying] = useState(false);
   const [results, setResults] = useState([]);
@@ -20,7 +25,7 @@ function RequestEmergency() {
   const [error, setError] = useState(null);
   const [searched, setSearched] = useState(false);
   const [etaSeconds, setEtaSeconds] = useState(null);
-    const [routeCoordinates, setRouteCoordinates] = useState(null);
+  const [routeCoordinates, setRouteCoordinates] = useState(null);
   const [routeInfo, setRouteInfo] = useState(null); // { distanceKm, durationMin }
   const timerRef = useRef(null);
 
@@ -63,14 +68,14 @@ function RequestEmergency() {
       const demoDelay = Math.min(etaMs, 15000); // capped at 15s so analytics data appears quickly for demo
 
       setTimeout(() => {
-        api.put(`/emergency-requests/${created.data.id}/complete`).catch(() => {});
+        api.put(`/emergency-requests/${created.data.id}/complete`).catch(() => { });
       }, demoDelay);
     } catch (err) {
       console.log("Could not log emergency request for analytics", err);
     }
   };
 
-    const fetchRoadRoute = async (lat1, lon1, lat2, lon2) => {
+  const fetchRoadRoute = async (lat1, lon1, lat2, lon2) => {
     try {
       const url = `${OSRM_BASE_URL}/${lon1},${lat1};${lon2},${lat2}?overview=full&geometries=geojson`;
       const res = await fetch(url);
@@ -105,7 +110,7 @@ function RequestEmergency() {
       });
       setResults(response.data);
 
-           if (response.data.length > 0) {
+      if (response.data.length > 0) {
         const best = response.data[0];
 
         // Try to get a real road route from OSRM; fall back to straight-line ETA if it fails
@@ -154,6 +159,42 @@ function RequestEmergency() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const searchPlaces = (query) => {
+    setPlaceQuery(query);
+
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+
+    if (query.trim().length < 3) {
+      setPlaceSuggestions([]);
+      setShowSuggestions(false);
+      return;
+    }
+
+    debounceRef.current = setTimeout(async () => {
+      setSearchingPlace(true);
+      try {
+        const res = await fetch(
+          `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=6&countrycodes=in`
+        );
+        const data = await res.json();
+        setPlaceSuggestions(data);
+        setShowSuggestions(true);
+      } catch (err) {
+        console.log("Place search failed", err);
+      } finally {
+        setSearchingPlace(false);
+      }
+    }, 500); // debounce so we don't hit the API on every keystroke
+  };
+
+  const selectPlace = (place) => {
+    setLatitude(parseFloat(place.lat).toFixed(6));
+    setLongitude(parseFloat(place.lon).toFixed(6));
+    setPlaceQuery(place.display_name);
+    setShowSuggestions(false);
+    setPlaceSuggestions([]);
+  };
+
   const detectLocation = () => {
     if (!navigator.geolocation) {
       setError("Geolocation is not supported by your browser.");
@@ -163,6 +204,7 @@ function RequestEmergency() {
       (position) => {
         setLatitude(position.coords.latitude.toFixed(6));
         setLongitude(position.coords.longitude.toFixed(6));
+        setPlaceQuery("");
       },
       () => {
         setError("Unable to detect location. Please enter manually.");
@@ -170,7 +212,7 @@ function RequestEmergency() {
     );
   };
 
-      const classifySeverity = async () => {
+  const classifySeverity = async () => {
     if (!symptoms.trim()) return;
     setClassifying(true);
     try {
@@ -186,7 +228,7 @@ function RequestEmergency() {
     }
   };
 
-    const handleSubmit = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     await runSearch(latitude, longitude, emergencyType);
   };
@@ -255,6 +297,57 @@ function RequestEmergency() {
           </button>
         </div>
 
+                <div style={{ marginBottom: "18px", position: "relative" }}>
+          <label style={labelStyle}>🔍 Search by Place Name</label>
+          <input
+            type="text"
+            value={placeQuery}
+            onChange={(e) => searchPlaces(e.target.value)}
+            onFocus={() => placeSuggestions.length > 0 && setShowSuggestions(true)}
+            placeholder="e.g. Patna, AIIMS Delhi, Connaught Place..."
+            style={inputStyle}
+            autoComplete="off"
+          />
+          {searchingPlace && (
+            <p style={{ fontSize: "12px", color: "#457b9d", marginTop: "4px" }}>Searching...</p>
+          )}
+          {showSuggestions && placeSuggestions.length > 0 && (
+            <div
+              style={{
+                position: "absolute",
+                top: "100%",
+                left: 0,
+                right: 0,
+                background: "white",
+                borderRadius: "10px",
+                boxShadow: "0 8px 24px rgba(0,0,0,0.15)",
+                marginTop: "6px",
+                zIndex: 10,
+                maxHeight: "220px",
+                overflowY: "auto",
+                border: "1px solid rgba(0,0,0,0.08)",
+              }}
+            >
+              {placeSuggestions.map((place, i) => (
+                <div
+                  key={i}
+                  onClick={() => selectPlace(place)}
+                  style={{
+                    padding: "10px 14px",
+                    fontSize: "13px",
+                    cursor: "pointer",
+                    borderBottom: i < placeSuggestions.length - 1 ? "1px solid rgba(0,0,0,0.06)" : "none",
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(69,123,157,0.08)")}
+                  onMouseLeave={(e) => (e.currentTarget.style.background = "white")}
+                >
+                  📍 {place.display_name}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
         <div className="form-row" style={{ display: "flex", gap: "15px", marginBottom: "18px" }}>
           <div style={{ flex: 1 }}>
             <label style={labelStyle}>Latitude</label>
@@ -280,7 +373,7 @@ function RequestEmergency() {
           </div>
         </div>
 
-                <div style={{ marginBottom: "22px" }}>
+        <div style={{ marginBottom: "22px" }}>
           <label style={labelStyle}>🤖 Describe Symptoms (AI Severity Check)</label>
           <textarea
             value={symptoms}
@@ -300,10 +393,10 @@ function RequestEmergency() {
                 fontSize: "13px",
                 background:
                   severityResult.severity === "CRITICAL" ? "rgba(230,57,70,0.1)" :
-                  severityResult.severity === "MODERATE" ? "rgba(233,196,106,0.15)" : "rgba(42,157,143,0.1)",
+                    severityResult.severity === "MODERATE" ? "rgba(233,196,106,0.15)" : "rgba(42,157,143,0.1)",
                 color:
                   severityResult.severity === "CRITICAL" ? "#e63946" :
-                  severityResult.severity === "MODERATE" ? "#c78a1e" : "#2a9d8f",
+                    severityResult.severity === "MODERATE" ? "#c78a1e" : "#2a9d8f",
                 fontWeight: "600",
               }}
             >
@@ -384,7 +477,7 @@ function RequestEmergency() {
             <div style={{ fontSize: "12px", fontWeight: "700", color: "#e63946", letterSpacing: "0.5px", textTransform: "uppercase" }}>
               🚑 Estimated Ambulance Arrival
             </div>
-                       <div style={{ fontSize: "13px", color: "#6c757d", marginTop: "4px" }}>
+            <div style={{ fontSize: "13px", color: "#6c757d", marginTop: "4px" }}>
               To {bestHospital.hospital.name} · {routeInfo ? `${routeInfo.distanceKm.toFixed(1)} km road distance` : `${bestHospital.distanceInKm.toFixed(1)} km (straight-line)`}
             </div>
           </div>
@@ -444,7 +537,7 @@ function RequestEmergency() {
                 </Marker>
               ))}
 
-                           {routeCoordinates ? (
+              {routeCoordinates ? (
                 <Polyline
                   positions={routeCoordinates}
                   color="#e63946"
