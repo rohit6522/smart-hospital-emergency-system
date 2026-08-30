@@ -34,6 +34,17 @@ public class Hospital {
 
     private Boolean bloodBankAvailable;
 
+    private Integer bloodAPos = 0;
+    private Integer bloodANeg = 0;
+    private Integer bloodBPos = 0;
+    private Integer bloodBNeg = 0;
+    private Integer bloodOPos = 0;
+    private Integer bloodONeg = 0;
+    private Integer bloodABPos = 0;
+    private Integer bloodABNeg = 0;
+
+
+
     private Integer availableDoctors;
 
     @ElementCollection

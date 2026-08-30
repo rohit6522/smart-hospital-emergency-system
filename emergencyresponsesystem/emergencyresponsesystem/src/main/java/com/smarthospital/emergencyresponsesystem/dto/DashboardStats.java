@@ -20,4 +20,5 @@ public class DashboardStats {
     private long availableIcuBeds;
     private Map<String, Long> emergencyTypeBreakdown;
     private Map<String, Long> ambulanceStatusBreakdown;
+    private Map<String, Double> avgResponseTimeByHospital;
 }

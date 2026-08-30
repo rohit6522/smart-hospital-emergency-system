@@ -47,6 +47,7 @@ public class SecurityConfig {
                         .requestMatchers("POST", "/api/emergency-requests/**").permitAll()
                         .requestMatchers("GET", "/api/emergency-requests/**").permitAll()
                         .requestMatchers("GET", "/api/dashboard/**").permitAll()
+                        .requestMatchers("POST", "/api/ai/**").permitAll()
                         
                         // Admin-only endpoints - write operations
                         .requestMatchers("POST", "/api/hospitals/**").hasRole("ADMIN")
@@ -57,7 +58,7 @@ public class SecurityConfig {
                         .requestMatchers("POST", "/api/ambulances/**").hasRole("ADMIN")
                         .requestMatchers("PUT", "/api/ambulances/**").hasRole("ADMIN")
                         .requestMatchers("DELETE", "/api/ambulances/**").hasRole("ADMIN")
-
+                        .requestMatchers("PUT", "/api/emergency-requests/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);

@@ -41,4 +41,13 @@ public class EmergencyRequestController {
         emergencyRequestService.deleteRequest(id);
         return "Request deleted successfully with id: " + id;
     }
+
+    @PutMapping("/{id}/complete")
+    public EmergencyRequest completeRequest(@PathVariable Long id) {
+        EmergencyRequest request = emergencyRequestService.getRequestById(id)
+                .orElseThrow(() -> new RuntimeException("Request not found"));
+        request.setStatus("COMPLETED");
+        request.setCompletionTime(java.time.LocalDateTime.now());
+        return emergencyRequestService.updateRequest(id, request);
+    }
 }

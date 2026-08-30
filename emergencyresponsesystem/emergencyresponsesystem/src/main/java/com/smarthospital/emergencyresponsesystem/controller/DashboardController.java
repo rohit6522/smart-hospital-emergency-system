@@ -12,10 +12,12 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
+import com.smarthospital.emergencyresponsesystem.entity.EmergencyRequest;
+import java.time.Duration;
+import java.util.stream.Collectors;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+
 
 @RestController
 @RequestMapping("/api/dashboard")
@@ -63,6 +65,26 @@ public class DashboardController {
         Map<String, Long> ambulanceStatusBreakdown = ambulances.stream()
                 .collect(Collectors.groupingBy(Ambulance::getStatus, Collectors.counting()));
 
+        // Calculate average response time (in minutes) per hospital, only for completed requests with both timestamps
+        List<EmergencyRequest> completedRequests = emergencyRequestRepository.findAll().stream()
+                .filter(r -> r.getRequestTime() != null && r.getCompletionTime() != null && r.getHospitalId() != null)
+                .collect(Collectors.toList());
+
+        Map<Long, List<Double>> responseTimesByHospitalId = new java.util.HashMap<>();
+        for (EmergencyRequest r : completedRequests) {
+            double minutes = Duration.between(r.getRequestTime(), r.getCompletionTime()).toSeconds() / 60.0;
+            responseTimesByHospitalId
+                    .computeIfAbsent(r.getHospitalId(), k -> new java.util.ArrayList<>())
+                    .add(minutes);
+        }
+
+        Map<String, Double> avgResponseTimeByHospital = new java.util.HashMap<>();
+        for (Map.Entry<Long, List<Double>> entry : responseTimesByHospitalId.entrySet()) {
+            hospitalRepository.findById(entry.getKey()).ifPresent(hospital -> {
+                double avg = entry.getValue().stream().mapToDouble(Double::doubleValue).average().orElse(0);
+                avgResponseTimeByHospital.put(hospital.getName(), Math.round(avg * 10.0) / 10.0);
+            });
+        }
         return new DashboardStats(
                 hospitalRepository.count(),
                 patientRepository.count(),
@@ -73,7 +95,8 @@ public class DashboardController {
                 totalIcuBeds,
                 availableIcuBeds,
                 emergencyTypeBreakdown,
-                ambulanceStatusBreakdown
+                ambulanceStatusBreakdown,
+                avgResponseTimeByHospital
         );
     }
 }
