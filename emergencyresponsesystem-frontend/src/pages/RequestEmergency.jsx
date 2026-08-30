@@ -28,6 +28,7 @@ function RequestEmergency() {
   const [routeCoordinates, setRouteCoordinates] = useState(null);
   const [routeInfo, setRouteInfo] = useState(null); // { distanceKm, durationMin }
   const timerRef = useRef(null);
+  const [dispatchedAmbulance, setDispatchedAmbulance] = useState(null);
 
   useEffect(() => {
     requestNotificationPermission();
@@ -64,6 +65,22 @@ function RequestEmergency() {
         status: "REQUESTED",
       });
 
+      // AI Auto-Dispatch: assign nearest available ambulance automatically
+      try {
+        const dispatchRes = await api.post("/ambulances/auto-dispatch", null, {
+          params: {
+            latitude: parseFloat(latitude),
+            longitude: parseFloat(longitude),
+            hospitalId: bestResult.hospital.id,
+          },
+        });
+        if (dispatchRes.data) {
+          setDispatchedAmbulance(dispatchRes.data);
+        }
+      } catch (err) {
+        console.log("Auto-dispatch failed or no ambulance available", err);
+      }
+
       const etaMs = Math.max(1, (bestResult.distanceInKm / AVERAGE_AMBULANCE_SPEED_KMH) * 60) * 60 * 1000;
       const demoDelay = Math.min(etaMs, 15000); // capped at 15s so analytics data appears quickly for demo
 
@@ -76,7 +93,7 @@ function RequestEmergency() {
   };
 
 
-    const resetSearch = () => {
+  const resetSearch = () => {
     setLatitude("");
     setLongitude("");
     setPlaceQuery("");
@@ -89,6 +106,7 @@ function RequestEmergency() {
     setEtaSeconds(null);
     setRouteCoordinates(null);
     setRouteInfo(null);
+    setDispatchedAmbulance(null);
     if (timerRef.current) clearInterval(timerRef.current);
   };
 
@@ -314,7 +332,7 @@ function RequestEmergency() {
           </button>
         </div>
 
-                <div style={{ marginBottom: "18px", position: "relative" }}>
+        <div style={{ marginBottom: "18px", position: "relative" }}>
           <label style={labelStyle}>🔍 Search by Place Name</label>
           <input
             type="text"
@@ -475,7 +493,7 @@ function RequestEmergency() {
       )}
 
       {/* ETA COUNTDOWN CARD */}
-           {bestHospital && etaSeconds !== null && (
+      {bestHospital && etaSeconds !== null && (
         <div
           className="glass-card animate-fade-up"
           style={{
@@ -526,6 +544,25 @@ function RequestEmergency() {
             >
               🔄 New Search
             </button>
+          </div>
+        </div>
+      )}
+
+            {dispatchedAmbulance && (
+        <div
+          className="glass-card animate-fade-up"
+          style={{
+            marginTop: "16px",
+            padding: "18px 24px",
+            background: "linear-gradient(135deg, rgba(42,157,143,0.1), rgba(42,157,143,0.02))",
+            border: "1px solid rgba(42,157,143,0.25)",
+          }}
+        >
+          <div style={{ fontSize: "12px", fontWeight: "700", color: "#2a9d8f", letterSpacing: "0.5px", textTransform: "uppercase", marginBottom: "6px" }}>
+            🤖 AI Auto-Dispatched Ambulance
+          </div>
+          <div style={{ fontSize: "14px", color: "#333" }}>
+            🚑 <b>{dispatchedAmbulance.vehicleNumber}</b> · Driver: {dispatchedAmbulance.driverName} · 📞 {dispatchedAmbulance.driverContact}
           </div>
         </div>
       )}
