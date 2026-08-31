@@ -14,6 +14,8 @@ function AddPatient() {
     emergencyContactName: "",
     emergencyContactNumber: "",
   });
+    const [duplicateWarning, setDuplicateWarning] = useState(null);
+  const [checkingDuplicate, setCheckingDuplicate] = useState(false);
   const [error, setError] = useState(null);
   const [submitting, setSubmitting] = useState(false);
 
@@ -21,10 +23,47 @@ function AddPatient() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+   const checkForDuplicates = async () => {
+    if (!formData.name.trim()) return [];
+    setCheckingDuplicate(true);
+    try {
+      const response = await api.get("/patients/check-duplicate", {
+        params: { name: formData.name, contact: formData.contactNumber },
+      });
+      return response.data;
+    } catch (err) {
+      return [];
+    } finally {
+      setCheckingDuplicate(false);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setSubmitting(true);
     setError(null);
+
+    const duplicates = await checkForDuplicates();
+    if (duplicates.length > 0 && !duplicateWarning) {
+      setDuplicateWarning(duplicates);
+      return; // pause submission, show warning first
+    }
+
+    setSubmitting(true);
+    try {
+      await api.post("/patients", {
+        ...formData,
+        age: parseInt(formData.age),
+      });
+      navigate("/patients");
+    } catch (err) {
+      setError("Failed to add patient. Please check the form and try again.");
+      setSubmitting(false);
+    }
+  };
+
+  const proceedAnyway = async () => {
+    setDuplicateWarning(null);
+    setSubmitting(true);
     try {
       await api.post("/patients", {
         ...formData,
@@ -159,7 +198,44 @@ function AddPatient() {
         >
           {submitting ? "Saving..." : "Save Patient"}
         </button>
+                {checkingDuplicate && (
+          <p style={{ fontSize: "13px", color: "#457b9d", marginTop: "12px" }}>🤖 Checking for duplicate records...</p>
+        )}
       </form>
+            {duplicateWarning && (
+        <div
+          style={{
+            marginTop: "20px",
+            padding: "18px",
+            background: "rgba(233,196,106,0.15)",
+            border: "1px solid rgba(233,196,106,0.4)",
+            borderRadius: "10px",
+          }}
+        >
+          <p style={{ fontWeight: "700", color: "#c78a1e", margin: "0 0 10px" }}>
+            🤖 AI Duplicate Detection: Similar records found!
+          </p>
+          {duplicateWarning.map((p) => (
+            <div key={p.id} style={{ fontSize: "13px", color: "#555", marginBottom: "6px" }}>
+              • {p.name}, Age {p.age}, Contact: {p.contactNumber}
+            </div>
+          ))}
+          <div style={{ display: "flex", gap: "10px", marginTop: "12px" }}>
+            <button
+              onClick={proceedAnyway}
+              style={{ padding: "8px 16px", background: "#e63946", color: "white", border: "none", borderRadius: "6px", cursor: "pointer", fontSize: "13px" }}
+            >
+              Add Anyway
+            </button>
+            <button
+              onClick={() => setDuplicateWarning(null)}
+              style={{ padding: "8px 16px", background: "#999", color: "white", border: "none", borderRadius: "6px", cursor: "pointer", fontSize: "13px" }}
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
