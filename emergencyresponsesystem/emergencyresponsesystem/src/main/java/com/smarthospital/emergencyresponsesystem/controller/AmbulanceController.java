@@ -5,7 +5,7 @@ import com.smarthospital.emergencyresponsesystem.service.AmbulanceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-
+import org.springframework.web.bind.annotation.RequestParam;
 import java.util.List;
 
 @RestController
@@ -46,5 +46,17 @@ public class AmbulanceController {
     public String deleteAmbulance(@PathVariable Long id) {
         ambulanceService.deleteAmbulance(id);
         return "Ambulance deleted successfully with id: " + id;
+    }
+
+    @PostMapping("/auto-dispatch")
+    public Ambulance autoDispatch(
+            @RequestParam Double latitude,
+            @RequestParam Double longitude,
+            @RequestParam(required = false) Long hospitalId) {
+        Ambulance dispatched = ambulanceService.autoDispatch(latitude, longitude, hospitalId);
+        if (dispatched != null) {
+            messagingTemplate.convertAndSend("/topic/ambulance-updates", dispatched);
+        }
+        return dispatched;
     }
 }

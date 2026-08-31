@@ -3,7 +3,7 @@ import api from "../services/api";
 import { Link } from "react-router-dom";
 import { connectWebSocket, disconnectWebSocket } from "../services/websocket";
 import { useAuth } from "../context/AuthContext";
-
+import Loader from "../components/Loader";
 function AmbulanceList() {
   const [ambulances, setAmbulances] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -71,7 +71,7 @@ function AmbulanceList() {
     }
   };
 
-  if (loading) return <p style={{ padding: "20px" }}>Loading ambulances...</p>;
+  if (loading) return <Loader text="Loading ambulances..." />;
   if (error) return <p style={{ padding: "20px", color: "red" }}>{error}</p>;
 
   const filteredAmbulances =

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import api from "../services/api";
-
+import Loader from "../components/Loader";
 function AdminDashboard() {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -22,7 +22,7 @@ function AdminDashboard() {
     }
   };
 
-  if (loading) return <p style={{ padding: "20px" }}>Loading dashboard...</p>;
+  if (loading) return <Loader text="Loading dashboard..." />;
   if (error) return <p style={{ padding: "20px", color: "red" }}>{error}</p>;
 
   const COLORS = ["#e63946", "#2a9d8f", "#457b9d", "#e9c46a", "#f4a261", "#8338ec"];

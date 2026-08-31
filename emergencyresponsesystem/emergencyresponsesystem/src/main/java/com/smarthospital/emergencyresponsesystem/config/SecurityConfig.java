@@ -48,7 +48,8 @@ public class SecurityConfig {
                         .requestMatchers("GET", "/api/emergency-requests/**").permitAll()
                         .requestMatchers("GET", "/api/dashboard/**").permitAll()
                         .requestMatchers("POST", "/api/ai/**").permitAll()
-                        
+                        .requestMatchers("POST", "/api/ambulances/auto-dispatch").permitAll()
+                        .requestMatchers("GET", "/api/patients/check-duplicate").hasRole("ADMIN")
                         // Admin-only endpoints - write operations
                         .requestMatchers("POST", "/api/hospitals/**").hasRole("ADMIN")
                         .requestMatchers("PUT", "/api/hospitals/**").hasRole("ADMIN")
@@ -62,7 +63,6 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
-
         return http.build();
     }
 

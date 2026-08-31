@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import api from "../services/api";
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-
+import Loader from "../components/Loader";
 
 function PatientList() {
   const [patients, setPatients] = useState([]);
@@ -37,7 +37,7 @@ function PatientList() {
     }
   };
 
-  if (loading) return <p style={{ padding: "20px" }}>Loading patients...</p>;
+   if (loading) return <Loader text="Loading patients..." />;
   if (error) return <p style={{ padding: "20px", color: "red" }}>{error}</p>;
 
   const filteredPatients = patients.filter((p) =>

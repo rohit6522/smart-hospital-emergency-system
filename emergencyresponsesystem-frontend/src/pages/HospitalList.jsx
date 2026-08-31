@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import api from "../services/api";
 import { useAuth } from "../context/AuthContext";
-
+import Loader from "../components/Loader";
 const EMERGENCY_TYPES = ["Trauma", "Cardiac", "Accident", "Pediatric", "Neuro", "Burns", "Poisoning", "Maternity", "Respiratory", "General"];
 
 function HospitalList() {
@@ -104,7 +104,7 @@ function HospitalList() {
     }
   };
 
-  if (loading) return <p style={{ padding: "20px" }}>Loading hospitals...</p>;
+    if (loading) return <Loader text="Loading hospitals..." />;
   if (error) return <p style={{ padding: "20px", color: "red" }}>{error}</p>;
 
   const emergencyTypesInData = ["All", ...new Set(hospitals.flatMap((h) => h.emergencyTypes || []))];

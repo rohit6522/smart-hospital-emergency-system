@@ -41,4 +41,9 @@ public class PatientController {
         patientService.deletePatient(id);
         return "Patient deleted successfully with id: " + id;
     }
+
+    @GetMapping("/check-duplicate")
+    public List<Patient> checkDuplicate(@RequestParam String name, @RequestParam(required = false) String contact) {
+        return patientService.findPotentialDuplicates(name, contact);
+    }
 }
