@@ -60,6 +60,7 @@ public class SecurityConfig {
                         .requestMatchers("PUT", "/api/ambulances/**").hasRole("ADMIN")
                         .requestMatchers("DELETE", "/api/ambulances/**").hasRole("ADMIN")
                         .requestMatchers("PUT", "/api/emergency-requests/**").permitAll()
+                        .requestMatchers("POST", "/api/ai/chatbot").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
