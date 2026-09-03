@@ -21,6 +21,7 @@ function AdminDashboard() {
       setLoading(false);
     }
   };
+  
 
   if (loading) return <Loader text="Loading dashboard..." />;
   if (error) return <p style={{ padding: "20px", color: "red" }}>{error}</p>;

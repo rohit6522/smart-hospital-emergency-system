@@ -13,7 +13,7 @@ import AdminRoute from "./components/AdminRoute";
 import AdminDashboard from "./pages/AdminDashboard";
 import Footer from "./components/Footer";
 import SosButton from "./components/SosButton";
-
+import ChatbotWidget from "./components/ChatbotWidget";
 function App() {
   return (
     <BrowserRouter>
@@ -31,7 +31,8 @@ function App() {
         <Route path="/dashboard" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
       </Routes>
            <Footer />
-      <SosButton />
+           <SosButton />
+      <ChatbotWidget />
     </BrowserRouter>
   );
 }
