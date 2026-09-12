@@ -16,6 +16,7 @@ import SosButton from "./components/SosButton";
 import ChatbotWidget from "./components/ChatbotWidget";
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
+import ScrollToTop from "./components/ScrollToTop";
 
 function PageTitleUpdater() {
   const location = useLocation();
@@ -39,6 +40,7 @@ function App() {
     <BrowserRouter>
       <PageTitleUpdater />
       <Navbar />
+      <ScrollToTop />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/hospitals" element={<HospitalList />} />
