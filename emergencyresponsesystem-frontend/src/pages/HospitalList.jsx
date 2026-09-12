@@ -104,7 +104,7 @@ function HospitalList() {
     }
   };
 
-    if (loading) return <Loader text="Loading hospitals..." />;
+  if (loading) return <Loader text="Loading hospitals..." />;
   if (error) return <p style={{ padding: "20px", color: "red" }}>{error}</p>;
 
   const emergencyTypesInData = ["All", ...new Set(hospitals.flatMap((h) => h.emergencyTypes || []))];
@@ -222,7 +222,7 @@ function HospitalList() {
                             <option value="false">No</option>
                           </select>
                         </td>
-                                                <td style={{ minWidth: "200px" }}>
+                        <td style={{ minWidth: "200px" }}>
                           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "3px" }}>
                             {["APos:A+", "ANeg:A-", "BPos:B+", "BNeg:B-", "OPos:O+", "ONeg:O-", "ABPos:AB+", "ABNeg:AB-"].map((entry) => {
                               const [field, label] = entry.split(":");
@@ -241,7 +241,7 @@ function HospitalList() {
                             })}
                           </div>
                         </td>
-                        
+
                         <td><input style={{ ...editInputStyle, width: "60px" }} type="number" value={editForm.availableDoctors} onChange={(e) => handleEditChange("availableDoctors", e.target.value)} /></td>
                         <td style={{ minWidth: "220px" }}>
                           <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
@@ -282,7 +282,7 @@ function HospitalList() {
                         <td>{hospital.address}</td>
                         <td><b>{hospital.availableIcuBeds}</b> / {hospital.totalIcuBeds}</td>
                         <td>{hospital.bloodBankAvailable ? "✅" : "❌"}</td>
-                                                <td style={{ minWidth: "180px" }}>
+                        <td style={{ minWidth: "180px" }}>
                           {hospital.bloodBankAvailable ? (
                             <div style={{ display: "flex", flexWrap: "wrap", gap: "4px" }}>
                               {[
@@ -330,7 +330,16 @@ function HospitalList() {
                             )}
                           </div>
                         </td>
-                        <td>{hospital.contactNumber}</td>
+                        <td>
+                          {hospital.contactNumber}{" "}
+                          <button
+                            onClick={() => navigator.clipboard.writeText(hospital.contactNumber)}
+                            title="Copy number"
+                            style={{ border: "none", background: "none", cursor: "pointer", fontSize: "12px" }}
+                          >
+                            📋
+                          </button>
+                        </td>
                         {isAdmin && (
                           <td style={{ display: "flex", gap: "6px" }}>
                             <button onClick={() => startEdit(hospital)} style={{ padding: "6px 12px", background: "linear-gradient(135deg, #457b9d, #2d5a7a)", color: "white", border: "none", borderRadius: "6px", cursor: "pointer", fontSize: "12px" }}>Edit</button>
