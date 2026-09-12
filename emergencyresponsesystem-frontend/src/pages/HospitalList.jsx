@@ -211,7 +211,7 @@ function HospitalList() {
                         <td><input style={editInputStyle} value={editForm.name} onChange={(e) => handleEditChange("name", e.target.value)} /></td>
                         <td><input style={editInputStyle} value={editForm.address} onChange={(e) => handleEditChange("address", e.target.value)} /></td>
                         <td style={{ display: "flex", gap: "4px" }}>
-                          <input style={{ ...editInputStyle, width: "45px" }} type="number" value={editForm.availableIcuBeds} onChange={(e) => handleEditChange("availableIcuBeds", e.target.value)} />
+                         <input style={{ ...editInputStyle, width: "45px" }} type="number" min="0" value={editForm.availableIcuBeds} onChange={(e) => handleEditChange("availableIcuBeds", e.target.value)} />
                           /
                           <input style={{ ...editInputStyle, width: "45px" }} type="number" value={editForm.totalIcuBeds} onChange={(e) => handleEditChange("totalIcuBeds", e.target.value)} />
                         </td>
