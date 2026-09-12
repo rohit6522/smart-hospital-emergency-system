@@ -14,9 +14,30 @@ import AdminDashboard from "./pages/AdminDashboard";
 import Footer from "./components/Footer";
 import SosButton from "./components/SosButton";
 import ChatbotWidget from "./components/ChatbotWidget";
+import { useEffect } from "react";
+import { useLocation } from "react-router-dom";
+
+function PageTitleUpdater() {
+  const location = useLocation();
+  useEffect(() => {
+    const titles = {
+      "/": "Home | SmartHospital",
+      "/hospitals": "Hospitals | SmartHospital",
+      "/request-emergency": "Request Emergency | SmartHospital",
+      "/patients": "Patients | SmartHospital",
+      "/ambulances": "Ambulances | SmartHospital",
+      "/dashboard": "Dashboard | SmartHospital",
+      "/login": "Login | SmartHospital",
+      "/signup": "Sign Up | SmartHospital",
+    };
+    document.title = titles[location.pathname] || "SmartHospital";
+  }, [location.pathname]);
+  return null;
+}
 function App() {
   return (
     <BrowserRouter>
+      <PageTitleUpdater />
       <Navbar />
       <Routes>
         <Route path="/" element={<Home />} />
@@ -30,8 +51,8 @@ function App() {
         <Route path="/signup" element={<Signup />} />
         <Route path="/dashboard" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
       </Routes>
-           <Footer />
-           <SosButton />
+      <Footer />
+      <SosButton />
       <ChatbotWidget />
     </BrowserRouter>
   );
