@@ -410,14 +410,18 @@ function RequestEmergency() {
 
         <div style={{ marginBottom: "22px" }}>
           <label style={labelStyle}>🤖 Describe Symptoms (AI Severity Check)</label>
-          <textarea
+                   <textarea
             value={symptoms}
             onChange={(e) => setSymptoms(e.target.value)}
             onBlur={classifySeverity}
             placeholder="e.g. severe chest pain, difficulty breathing..."
             rows="2"
+            maxLength={300}
             style={{ ...inputStyle, resize: "vertical" }}
           />
+          <p style={{ fontSize: "11px", color: "#999", textAlign: "right", margin: "2px 0 0" }}>
+            {symptoms.length}/300
+          </p>
           {classifying && <p style={{ fontSize: "12px", color: "#457b9d", marginTop: "4px" }}>Analyzing symptoms...</p>}
           {severityResult && severityResult.severity !== "UNKNOWN" && (
             <div
