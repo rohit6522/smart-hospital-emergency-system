@@ -42,6 +42,7 @@ function Navbar() {
   }, [location.pathname]);
 
   const handleLogout = () => {
+    if (!window.confirm("Are you sure you want to logout?")) return;
     logout();
     setMenuOpen(false);
     navigate("/");
