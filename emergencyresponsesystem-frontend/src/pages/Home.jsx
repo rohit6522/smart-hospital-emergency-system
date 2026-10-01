@@ -160,7 +160,7 @@ function Home() {
             justifyContent: "center",
           }}
         >
-          <Link to="/hospitals" className="glass-card animate-fade-up stagger-1" style={quickLinkStyle}>🏥 View Hospitals</Link>
+          <Link to="/hospitals" style={quickLinkStyle}>🏥 Browse All Hospitals</Link>
           <Link to="/patients" className="glass-card animate-fade-up stagger-2" style={quickLinkStyle}>🧑‍⚕️ Patient Records</Link>
           <Link to="/ambulances" className="glass-card animate-fade-up stagger-3" style={quickLinkStyle}>🚑 Ambulance Fleet</Link>
         </div>
