@@ -352,6 +352,15 @@ function HospitalList() {
                         </td>
                         {isAdmin && (
                           <td style={{ display: "flex", gap: "6px" }}>
+
+                            <a
+                              href={`https://www.openstreetmap.org/?mlat=${hospital.latitude}&mlon=${hospital.longitude}#map=15/${hospital.latitude}/${hospital.longitude}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              style={{ padding: "6px 12px", background: "#457b9d", color: "white", borderRadius: "6px", fontSize: "12px", textDecoration: "none" }}
+                            >
+                              🗺️ Map
+                            </a>
                             <button
                               onClick={() => navigator.clipboard.writeText(`${hospital.name} - ${hospital.address} - Contact: ${hospital.contactNumber}`)}
                               style={{ padding: "6px 12px", background: "#999", color: "white", border: "none", borderRadius: "6px", cursor: "pointer", fontSize: "12px" }}
