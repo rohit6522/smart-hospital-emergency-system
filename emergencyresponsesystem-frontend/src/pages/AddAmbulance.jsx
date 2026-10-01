@@ -75,9 +75,9 @@ function AddAmbulance() {
           />
         </div>
 
-       <div style={{ display: "flex", gap: "15px", marginBottom: "20px" }}>
+        <div style={{ display: "flex", gap: "15px", marginBottom: "20px" }}>
           <div style={{ flex: 1 }}>
-            <label>Driver Name</label>
+            <label>Driver Name <span style={{ color: "#e63946" }}>*</span></label>
             <input
               type="text"
               name="driverName"
@@ -88,7 +88,7 @@ function AddAmbulance() {
             />
           </div>
           <div style={{ flex: 1 }}>
-            <label>Driver Contact</label>
+            <label>Driver Contact <span style={{ color: "#e63946" }}>*</span></label>
             <input
               type="text"
               name="driverContact"
@@ -118,7 +118,7 @@ function AddAmbulance() {
           </button>
         </div>
 
-       <div style={{ display: "flex", gap: "15px", marginBottom: "20px" }}>
+        <div style={{ display: "flex", gap: "15px", marginBottom: "20px" }}>
           <div style={{ flex: 1 }}>
             <label>Current Latitude</label>
             <input
@@ -143,7 +143,7 @@ function AddAmbulance() {
           </div>
         </div>
 
-       <div style={{ display: "flex", gap: "15px", marginBottom: "20px" }}>
+        <div style={{ display: "flex", gap: "15px", marginBottom: "20px" }}>
           <div style={{ flex: 1 }}>
             <label>Status</label>
             <select
