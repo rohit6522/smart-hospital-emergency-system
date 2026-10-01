@@ -410,7 +410,7 @@ function RequestEmergency() {
 
         <div style={{ marginBottom: "22px" }}>
           <label style={labelStyle}>🤖 Describe Symptoms (AI Severity Check)</label>
-                   <textarea
+          <textarea
             value={symptoms}
             onChange={(e) => setSymptoms(e.target.value)}
             onBlur={classifySeverity}
@@ -440,6 +440,11 @@ function RequestEmergency() {
               }}
             >
               🎯 AI Severity: {severityResult.severity} — {severityResult.recommendation}
+              {severityResult.matchedSymptoms && severityResult.matchedSymptoms.length > 0 && (
+                <div style={{ fontSize: "11px", marginTop: "4px", opacity: 0.8 }}>
+                  Detected keywords: {severityResult.matchedSymptoms.join(", ")}
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -552,7 +557,7 @@ function RequestEmergency() {
         </div>
       )}
 
-            {dispatchedAmbulance && (
+      {dispatchedAmbulance && (
         <div
           className="glass-card animate-fade-up"
           style={{
