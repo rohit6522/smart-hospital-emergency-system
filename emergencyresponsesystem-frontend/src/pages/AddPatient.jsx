@@ -14,7 +14,7 @@ function AddPatient() {
     emergencyContactName: "",
     emergencyContactNumber: "",
   });
-    const [duplicateWarning, setDuplicateWarning] = useState(null);
+  const [duplicateWarning, setDuplicateWarning] = useState(null);
   const [checkingDuplicate, setCheckingDuplicate] = useState(false);
   const [error, setError] = useState(null);
   const [submitting, setSubmitting] = useState(false);
@@ -23,7 +23,7 @@ function AddPatient() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-   const checkForDuplicates = async () => {
+  const checkForDuplicates = async () => {
     if (!formData.name.trim()) return [];
     setCheckingDuplicate(true);
     try {
@@ -82,7 +82,7 @@ function AddPatient() {
 
       <form onSubmit={handleSubmit} style={{ marginTop: "20px" }}>
         <div style={{ marginBottom: "15px" }}>
-          <label>Full Name</label>
+          <label>Full Name <span style={{ color: "#e63946" }}>*</span></label>
           <input
             type="text"
             name="name"
@@ -93,10 +93,11 @@ function AddPatient() {
           />
         </div>
 
-       <div className="form-row" style={{ display: "flex", gap: "15px", marginBottom: "15px" }}>
+        <div className="form-row" style={{ display: "flex", gap: "15px", marginBottom: "15px" }}>
 
           <div style={{ flex: 1 }}>
-            <label>Age</label>
+
+             <label>Age  <span style={{ color: "#e63946" }}>*</span></label>
             <input
               type="number"
               name="age"
@@ -108,6 +109,7 @@ function AddPatient() {
           </div>
           <div style={{ flex: 1 }}>
             <label>Gender</label>
+            
             <select
               name="gender"
               value={formData.gender}
@@ -123,7 +125,7 @@ function AddPatient() {
 
         <div className="form-row" style={{ display: "flex", gap: "15px", marginBottom: "15px" }}>
           <div style={{ flex: 1 }}>
-            <label>Contact Number</label>
+             <label>Contact Number  <span style={{ color: "#e63946" }}>*</span></label>
             <input
               type="text"
               name="contactNumber"
@@ -158,7 +160,7 @@ function AddPatient() {
           />
         </div>
 
-       <div className="form-row" style={{ display: "flex", gap: "15px", marginBottom: "15px" }}>
+        <div className="form-row" style={{ display: "flex", gap: "15px", marginBottom: "15px" }}>
           <div style={{ flex: 1 }}>
             <label>Emergency Contact Name</label>
             <input
@@ -198,11 +200,11 @@ function AddPatient() {
         >
           {submitting ? "Saving..." : "Save Patient"}
         </button>
-                {checkingDuplicate && (
+        {checkingDuplicate && (
           <p style={{ fontSize: "13px", color: "#457b9d", marginTop: "12px" }}>🤖 Checking for duplicate records...</p>
         )}
       </form>
-            {duplicateWarning && (
+      {duplicateWarning && (
         <div
           style={{
             marginTop: "20px",
