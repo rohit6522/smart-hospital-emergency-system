@@ -6,6 +6,7 @@ function AdminDashboard() {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [lastUpdated, setLastUpdated] = useState(null);
 
   useEffect(() => {
     fetchStats();
@@ -15,13 +16,14 @@ function AdminDashboard() {
     try {
       const response = await api.get("/dashboard/stats");
       setStats(response.data);
+      setLastUpdated(new Date().toLocaleTimeString());
       setLoading(false);
     } catch (err) {
       setError("Failed to load dashboard stats.");
       setLoading(false);
     }
   };
-  
+
 
   if (loading) return <Loader text="Loading dashboard..." />;
   if (error) return <p style={{ padding: "20px", color: "red" }}>{error}</p>;
@@ -55,6 +57,12 @@ function AdminDashboard() {
       <p className="animate-fade-up" style={{ color: "#6c757d", marginTop: 0, marginBottom: "30px" }}>
         Overview of hospital system performance and resources.
       </p>
+
+      {lastUpdated && (
+        <p style={{ fontSize: "12px", color: "#999", marginTop: "-20px", marginBottom: "20px" }}>
+          Last updated: {lastUpdated}
+        </p>
+      )}
 
       {/* Summary Cards */}
       <div
@@ -137,7 +145,7 @@ function AdminDashboard() {
           )}
         </div>
 
-         {/* Bar Chart - Average Response Time by Hospital */}
+        {/* Bar Chart - Average Response Time by Hospital */}
         <div className="glass-card animate-fade-up stagger-3" style={{ padding: "24px" }}>
           <h3 style={{ marginTop: 0, marginBottom: "16px", fontSize: "16px" }}>Avg Response Time by Hospital (min)</h3>
           {stats.avgResponseTimeByHospital && Object.keys(stats.avgResponseTimeByHospital).length > 0 ? (
