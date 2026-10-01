@@ -9,17 +9,26 @@ function ChatbotWidget() {
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
   const bottomRef = useRef(null);
+  
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, open]);
 
+    const inputRef = useRef(null);
+  useEffect(() => {
+    if (open) inputRef.current?.focus();
+  }, [open]);
+
   const sendMessage = async () => {
     if (!input.trim()) return;
+
     const userMessage = input.trim();
     setMessages((prev) => [...prev, { from: "user", text: userMessage }]);
     setInput("");
     setSending(true);
+
+
 
     try {
       const response = await api.post("/ai/chatbot", { message: userMessage });
