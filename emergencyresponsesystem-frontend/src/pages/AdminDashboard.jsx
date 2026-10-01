@@ -54,6 +54,12 @@ function AdminDashboard() {
   return (
     <div className="responsive-container" style={{ maxWidth: "1200px", margin: "0 auto", padding: "50px 20px" }}>
       <h1 className="animate-fade-up" style={{ marginBottom: "6px" }}>📊 Admin Dashboard</h1>
+      <button
+        onClick={fetchStats}
+        style={{ padding: "8px 16px", background: "rgba(69,123,157,0.12)", color: "#457b9d", border: "none", borderRadius: "8px", cursor: "pointer", fontSize: "13px", marginBottom: "20px" }}
+      >
+        🔄 Refresh Data
+      </button>
       <p className="animate-fade-up" style={{ color: "#6c757d", marginTop: 0, marginBottom: "30px" }}>
         Overview of hospital system performance and resources.
       </p>
