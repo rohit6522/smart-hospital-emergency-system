@@ -218,3 +218,6 @@ a {
     flex-direction: column !important;
   }
 }
+.page-fade-enter {
+  animation: fadeIn 0.3s ease;
+}

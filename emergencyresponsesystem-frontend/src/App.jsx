@@ -41,18 +41,20 @@ function App() {
       <PageTitleUpdater />
       <Navbar />
       <ScrollToTop />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/hospitals" element={<HospitalList />} />
-        <Route path="/request-emergency" element={<RequestEmergency />} />
-        <Route path="/patients" element={<PatientList />} />
-        <Route path="/ambulances" element={<AmbulanceList />} />
-        <Route path="/patients/add" element={<AdminRoute><AddPatient /></AdminRoute>} />
-        <Route path="/ambulances/add" element={<AdminRoute><AddAmbulance /></AdminRoute>} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
-        <Route path="/dashboard" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
-      </Routes>
+      <div className="page-fade-enter">
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/hospitals" element={<HospitalList />} />
+          <Route path="/request-emergency" element={<RequestEmergency />} />
+          <Route path="/patients" element={<PatientList />} />
+          <Route path="/ambulances" element={<AmbulanceList />} />
+          <Route path="/patients/add" element={<AdminRoute><AddPatient /></AdminRoute>} />
+          <Route path="/ambulances/add" element={<AdminRoute><AddAmbulance /></AdminRoute>} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/dashboard" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
+        </Routes>
+      </div>
       <Footer />
       <SosButton />
       <ChatbotWidget />
