@@ -13,7 +13,7 @@ function HospitalList() {
   const [searchTerm, setSearchTerm] = useState("");
   const [emergencyFilter, setEmergencyFilter] = useState("All");
   const [onlyAvailableIcu, setOnlyAvailableIcu] = useState(false);
-
+  const [copiedMsg, setCopiedMsg] = useState("");
   const [editingId, setEditingId] = useState(null);
   const [editForm, setEditForm] = useState({});
 
@@ -122,6 +122,11 @@ function HospitalList() {
 
   return (
     <div className="responsive-container" style={{ maxWidth: "1300px", margin: "0 auto", padding: "50px 20px" }}>
+      {copiedMsg && (
+        <div style={{ position: "fixed", top: "80px", right: "20px", background: "#2a9d8f", color: "white", padding: "8px 16px", borderRadius: "8px", fontSize: "13px", zIndex: 2000 }}>
+          {copiedMsg}
+        </div>
+      )}
       <h1 className="animate-fade-up" style={{ marginBottom: "6px" }}>🏥 Hospital List</h1>
       <p className="animate-fade-up" style={{ color: "#6c757d", marginTop: 0, marginBottom: "24px" }}>
         Browse all registered hospitals and their real-time resource availability.
@@ -333,7 +338,12 @@ function HospitalList() {
                         <td>
                           {hospital.contactNumber}{" "}
                           <button
-                            onClick={() => navigator.clipboard.writeText(hospital.contactNumber)}
+                            onClick={() => {
+                              navigator.clipboard.writeText(hospital.contactNumber);
+                              setCopiedMsg("Copied!");
+                              setTimeout(() => setCopiedMsg(""), 1500);
+                            }}
+
                             title="Copy number"
                             style={{ border: "none", background: "none", cursor: "pointer", fontSize: "12px" }}
                           >
