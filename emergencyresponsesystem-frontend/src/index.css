@@ -104,7 +104,7 @@ button:active {
 input, select, textarea {
   font-family: inherit;
   border: 1px solid rgba(0,0,0,0.1);
-  border-radius: 8px;
+  border-radius: 10px;
   outline: none;
   background: rgba(255,255,255,0.7);
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
