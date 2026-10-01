@@ -136,7 +136,7 @@ function AddPatient() {
             />
           </div>
           <div style={{ flex: 1 }}>
-            <label>Blood Group</label>
+            <label>Blood Group  <span style={{ color: "#e63946" }}>*</span></label>
             <input
               type="text"
               name="bloodGroup"
@@ -162,7 +162,7 @@ function AddPatient() {
 
         <div className="form-row" style={{ display: "flex", gap: "15px", marginBottom: "15px" }}>
           <div style={{ flex: 1 }}>
-            <label>Emergency Contact Name</label>
+            <label>Emergency Contact Name  <span style={{ color: "#e63946" }}>*</span></label>
             <input
               type="text"
               name="emergencyContactName"
@@ -172,7 +172,7 @@ function AddPatient() {
             />
           </div>
           <div style={{ flex: 1 }}>
-            <label>Emergency Contact Number</label>
+            <label>Emergency Contact Number  <span style={{ color: "#e63946" }}>*</span></label>
             <input
               type="text"
               name="emergencyContactNumber"
