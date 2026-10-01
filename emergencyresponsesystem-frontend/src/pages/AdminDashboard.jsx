@@ -53,7 +53,13 @@ function AdminDashboard() {
 
   return (
     <div className="responsive-container" style={{ maxWidth: "1200px", margin: "0 auto", padding: "50px 20px" }}>
-      <h1 className="animate-fade-up" style={{ marginBottom: "6px" }}>📊 Admin Dashboard</h1>
+
+      <h1 className="animate-fade-up" style={{ marginBottom: "6px" }}>
+        📊 Admin Dashboard{" "}
+        <span style={{ fontSize: "11px", background: "rgba(230,57,70,0.1)", color: "#e63946", padding: "3px 9px", borderRadius: "999px", verticalAlign: "middle" }}>
+          AI-Powered
+        </span>
+      </h1>      
       <button
         onClick={fetchStats}
         style={{ padding: "8px 16px", background: "rgba(69,123,157,0.12)", color: "#457b9d", border: "none", borderRadius: "8px", cursor: "pointer", fontSize: "13px", marginBottom: "20px" }}
