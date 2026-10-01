@@ -63,7 +63,7 @@ function AddAmbulance() {
 
       <form onSubmit={handleSubmit} style={{ marginTop: "20px" }}>
         <div style={{ marginBottom: "15px" }}>
-          <label>Vehicle Number</label>
+           <label>Vehicle Number<span style={{ color: "#e63946" }}>*</span></label>
           <input
             type="text"
             name="vehicleNumber"
@@ -158,7 +158,7 @@ function AddAmbulance() {
             </select>
           </div>
           <div style={{ flex: 1 }}>
-            <label>Assigned Hospital ID</label>
+           <label>Assigned Hospital ID <span style={{ color: "#e63946" }}>*</span></label>
             <input
               type="number"
               name="assignedHospitalId"
