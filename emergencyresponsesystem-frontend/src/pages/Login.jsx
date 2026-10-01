@@ -123,7 +123,7 @@ function Login() {
           </button>
 
         </form>
-                <p style={{ textAlign: "center", marginTop: "10px" }}>
+        <p style={{ textAlign: "center", marginTop: "10px" }}>
           <Link to="/" style={{ fontSize: "13px", color: "#999" }}>← Back to Home</Link>
         </p>
 
