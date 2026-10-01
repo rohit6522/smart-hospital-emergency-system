@@ -322,7 +322,7 @@ function HospitalList() {
                         <td style={{ minWidth: "180px" }}>
                           <div style={{ display: "flex", flexWrap: "wrap", gap: "4px" }}>
                             {(hospital.emergencyTypes || []).length === 0 ? (
-                              <span style={{ color: "#999", fontSize: "12px" }}>Not set</span>
+                              <span style={{ color: "#e63946", fontSize: "12px", fontStyle: "italic" }}>⚠️ Not configured</span>
                             ) : (
                               hospital.emergencyTypes.map((type) => (
                                 <span
