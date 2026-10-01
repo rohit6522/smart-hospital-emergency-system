@@ -153,7 +153,7 @@ function Footer() {
           color: "#6d6d8a",
         }}
       >
-        <span>© {year} SmartHospital. Built for faster, smarter emergency care.</span>
+                <span>© {year} SmartHospital v1.0 — Built for faster, smarter emergency care.</span>
         <span style={{ display: "flex", alignItems: "center", gap: "6px" }}>
           <span className="footer-live-dot" /> System Online
         </span>
