@@ -225,3 +225,9 @@ a {
 input:invalid, select:invalid {
   border-color: rgba(230, 57, 70, 0.3);
 }
+
+@media print {
+  nav, footer, .sos-btn, .chatbot-toggle, .chatbot-window {
+    display: none !important;
+  }
+}
