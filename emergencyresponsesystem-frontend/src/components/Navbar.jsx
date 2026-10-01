@@ -48,6 +48,13 @@ function Navbar() {
     navigate("/");
   };
 
+  const [scrolled, setScrolled] = useState(false);
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 10);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   const navStyle = {
     padding: "12px 24px",
     background: "rgba(15, 12, 41, 0.72)",
@@ -57,7 +64,7 @@ function Navbar() {
     position: "sticky",
     top: 0,
     zIndex: 1000,
-    boxShadow: "0 4px 30px rgba(0,0,0,0.2)",
+    boxShadow: scrolled ? "0 4px 30px rgba(0,0,0,0.35)" : "0 4px 30px rgba(0,0,0,0.2)",
   };
 
   const linkStyle = (path) => ({
