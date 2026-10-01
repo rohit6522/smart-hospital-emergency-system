@@ -121,7 +121,11 @@ function Login() {
           >
             {loading ? "Logging in..." : "Login"}
           </button>
+
         </form>
+                <p style={{ textAlign: "center", marginTop: "10px" }}>
+          <Link to="/" style={{ fontSize: "13px", color: "#999" }}>← Back to Home</Link>
+        </p>
 
         <p style={{ textAlign: "center", marginTop: "20px", fontSize: "14px", color: "#6c757d" }}>
           Don't have an account? <Link to="/signup" style={{ color: "#457b9d", fontWeight: "700" }}>Sign up</Link>
