@@ -342,6 +342,12 @@ function HospitalList() {
                         </td>
                         {isAdmin && (
                           <td style={{ display: "flex", gap: "6px" }}>
+                            <button
+                              onClick={() => navigator.clipboard.writeText(`${hospital.name} - ${hospital.address} - Contact: ${hospital.contactNumber}`)}
+                              style={{ padding: "6px 12px", background: "#999", color: "white", border: "none", borderRadius: "6px", cursor: "pointer", fontSize: "12px" }}
+                            >
+                              Copy Info
+                            </button>
                             <button onClick={() => startEdit(hospital)} style={{ padding: "6px 12px", background: "linear-gradient(135deg, #457b9d, #2d5a7a)", color: "white", border: "none", borderRadius: "6px", cursor: "pointer", fontSize: "12px" }}>Edit</button>
                             <button onClick={() => handleDelete(hospital.id)} style={{ padding: "6px 12px", background: "linear-gradient(135deg, #e63946, #c1121f)", color: "white", border: "none", borderRadius: "6px", cursor: "pointer", fontSize: "12px" }}>Delete</button>
                           </td>
