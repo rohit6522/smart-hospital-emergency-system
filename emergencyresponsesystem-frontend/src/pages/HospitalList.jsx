@@ -110,7 +110,9 @@ function HospitalList() {
   const emergencyTypesInData = ["All", ...new Set(hospitals.flatMap((h) => h.emergencyTypes || []))];
 
   const filteredHospitals = hospitals.filter((hospital) => {
-    const matchesSearch = hospital.name.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesSearch =
+      hospital.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (hospital.contactNumber || "").includes(searchTerm);
     const matchesEmergency =
       emergencyFilter === "All" || (hospital.emergencyTypes || []).includes(emergencyFilter);
     const matchesIcu = !onlyAvailableIcu || hospital.availableIcuBeds > 0;
