@@ -36,11 +36,19 @@ function AddPatient() {
     } finally {
       setCheckingDuplicate(false);
     }
+
   };
+
+  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
+
+        if (!formData.name.trim()) {
+      setError("Patient name cannot be empty.");
+      return;
+    }
 
     const duplicates = await checkForDuplicates();
     if (duplicates.length > 0 && !duplicateWarning) {
