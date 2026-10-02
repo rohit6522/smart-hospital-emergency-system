@@ -57,6 +57,9 @@ function ChatbotWidget() {
       {open && (
         <div className="chatbot-window glass-card animate-fade-up">
           <div className="chatbot-header">
+            <div style={{ fontSize: "10px", color: "#999", padding: "4px 14px", background: "rgba(0,0,0,0.02)" }}>
+              NLP-powered rule-based assistant
+            </div>
             <span>🤖 AI Assistant</span>
             <span className="chatbot-live-dot" />
           </div>
