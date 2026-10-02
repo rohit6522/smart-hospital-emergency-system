@@ -49,6 +49,7 @@ function AdminDashboard() {
     { label: "On-Duty Ambulances", value: stats.onDutyAmbulances, icon: "🔄", color: "#f4a261" },
     { label: "Total ICU Beds", value: stats.totalIcuBeds, icon: "🛏️", color: "#457b9d" },
     { label: "Available ICU Beds", value: stats.availableIcuBeds, icon: "🟢", color: "#2a9d8f" },
+        { label: "ICU Occupancy", value: stats.totalIcuBeds > 0 ? `${Math.round(((stats.totalIcuBeds - stats.availableIcuBeds) / stats.totalIcuBeds) * 100)}%` : "N/A", icon: "📈", color: "#e63946" },
   ];
 
   return (
