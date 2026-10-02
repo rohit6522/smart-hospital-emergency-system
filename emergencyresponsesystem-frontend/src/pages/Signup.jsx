@@ -83,11 +83,12 @@ function Signup() {
         <form onSubmit={handleSubmit}>
           <div style={{ marginBottom: "16px" }}>
             <label style={{ fontSize: "13px", fontWeight: "600", color: "#444" }}>Full Name</label>
-            <input
+                       <input
               type="text"
               name="fullName"
               value={formData.fullName}
               onChange={handleChange}
+              placeholder="e.g. Rohit Kumar"
               required
               style={{ width: "100%", padding: "11px 14px", marginTop: "6px" }}
             />
