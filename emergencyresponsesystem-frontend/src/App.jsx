@@ -17,6 +17,7 @@ import ChatbotWidget from "./components/ChatbotWidget";
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import ScrollToTop from "./components/ScrollToTop";
+import OfflineBanner from "./components/OfflineBanner";
 
 function PageTitleUpdater() {
   const location = useLocation();
@@ -39,6 +40,7 @@ function App() {
   return (
     <BrowserRouter>
       <PageTitleUpdater />
+      <OfflineBanner />
       <Navbar />
       <ScrollToTop />
       <div className="page-fade-enter">

@@ -1,12 +1,13 @@
 package com.smarthospital.emergencyresponsesystem.service;
 
-import com.smarthospital.emergencyresponsesystem.entity.Ambulance;
-import com.smarthospital.emergencyresponsesystem.repository.AmbulanceRepository;
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
+import com.smarthospital.emergencyresponsesystem.entity.Ambulance;
+import com.smarthospital.emergencyresponsesystem.repository.AmbulanceRepository;
 
 @Service
 public class AmbulanceService {
@@ -31,7 +32,7 @@ public class AmbulanceService {
         return ambulanceRepository.save(updatedAmbulance);
     }
 
-    /**
+    /** 
      * AI-based Auto-Dispatch: finds the nearest AVAILABLE ambulance to a given
      * location using a greedy nearest-neighbor assignment algorithm, then
      * marks it ON_DUTY and links it to the hospital.

@@ -231,3 +231,11 @@ input:invalid, select:invalid {
     display: none !important;
   }
 }
+
+@keyframes slideDown {
+  from { transform: translateY(-100%); }
+  to { transform: translateY(0); }
+}
+.offline-banner {
+  animation: slideDown 0.3s ease;
+}
