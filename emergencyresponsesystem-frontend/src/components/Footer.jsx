@@ -102,6 +102,14 @@ function Footer() {
           <Link to="/request-emergency" style={linkStyle} onMouseEnter={(e) => (e.target.style.color = "#fff")} onMouseLeave={(e) => (e.target.style.color = "#a8a8c0")}>Request Emergency</Link>
           <Link to="/patients" style={linkStyle} onMouseEnter={(e) => (e.target.style.color = "#fff")} onMouseLeave={(e) => (e.target.style.color = "#a8a8c0")}>Patients</Link>
           <Link to="/ambulances" style={linkStyle} onMouseEnter={(e) => (e.target.style.color = "#fff")} onMouseLeave={(e) => (e.target.style.color = "#a8a8c0")}>Ambulances</Link>
+          <a
+            href="https://github.com/rohit6522/smart-hospital-emergency-system/issues"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={linkStyle}
+          >
+            Report an Issue
+          </a>
         </div>
 
         {/* Account column */}
@@ -127,7 +135,7 @@ function Footer() {
         {/* Contact column */}
         <div>
           <div style={headingStyle}>Emergency Contacts</div>
-                    <p style={{ fontSize: "13.5px", margin: "0 0 8px", color: "#8f8fae" }}>
+          <p style={{ fontSize: "13.5px", margin: "0 0 8px", color: "#8f8fae" }}>
             🚑 Ambulance: <a href="tel:102" style={{ color: "#ff8a5c", textDecoration: "none" }}>102</a>{" "}
             <button
               onClick={() => navigator.clipboard.writeText("102")}
@@ -160,7 +168,7 @@ function Footer() {
           color: "#6d6d8a",
         }}
       >
-                <span>© {year} SmartHospital v1.0 — Built for faster, smarter emergency care.</span>
+        <span>© {year} SmartHospital v1.0 — Built for faster, smarter emergency care.</span>
         <span style={{ display: "flex", alignItems: "center", gap: "6px" }}>
           <span className="footer-live-dot" /> System Online
         </span>
