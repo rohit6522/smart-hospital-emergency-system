@@ -10,6 +10,7 @@ function AmbulanceList() {
   const [error, setError] = useState(null);
   const [statusFilter, setStatusFilter] = useState("All");
   const [isLive, setIsLive] = useState(false);
+  const [copiedMsg, setCopiedMsg] = useState("");
   const { isAdmin } = useAuth();
 
   const fetchAmbulances = async () => {
@@ -85,6 +86,11 @@ function AmbulanceList() {
 
   return (
     <div className="responsive-container" style={{ maxWidth: "1200px", margin: "0 auto", padding: "50px 20px" }}>
+      {copiedMsg && (
+        <div style={{ position: "fixed", top: "80px", right: "20px", background: "#2a9d8f", color: "white", padding: "8px 16px", borderRadius: "8px", fontSize: "13px", zIndex: 2000 }}>
+          {copiedMsg}
+        </div>
+      )}
       <div className="animate-fade-up" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "6px" }}>
         <h1 style={{ margin: 0 }}>
           🚑 Ambulance Fleet{" "}
@@ -171,7 +177,11 @@ function AmbulanceList() {
                   <td>{ambulance.id}</td>
                   <td style={{ fontWeight: "600" }}>{ambulance.vehicleNumber}</td>
                   <td>{ambulance.driverName}</td>
-                  <td>{ambulance.driverContact}</td>
+                  onClick={() => {
+                    navigator.clipboard.writeText(ambulance.driverContact);
+                    setCopiedMsg("Copied!");
+                    setTimeout(() => setCopiedMsg(""), 1500);
+                  }}
                   <td style={{ fontSize: "13px" }}>
                     {ambulance.currentLatitude}, {ambulance.currentLongitude}
                   </td>
