@@ -173,6 +173,12 @@ function HospitalList() {
           />
           Only ICU beds available
         </label>
+        <button
+          onClick={() => { setSearchTerm(""); setEmergencyFilter("All"); setOnlyAvailableIcu(false); }}
+          style={{ padding: "10px 16px", background: "rgba(0,0,0,0.05)", color: "#555", border: "none", borderRadius: "8px", cursor: "pointer", fontSize: "13px" }}
+        >
+          Clear Filters
+        </button>
       </div>
 
       <p style={{ color: "#6c757d", fontSize: "13px" }}>
