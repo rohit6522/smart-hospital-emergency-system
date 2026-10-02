@@ -127,8 +127,15 @@ function Footer() {
         {/* Contact column */}
         <div>
           <div style={headingStyle}>Emergency Contacts</div>
-          <p style={{ fontSize: "13.5px", margin: "0 0 8px", color: "#8f8fae" }}>
-            🚑 Ambulance: <a href="tel:102" style={{ color: "#ff8a5c", textDecoration: "none" }}>102</a>
+                    <p style={{ fontSize: "13.5px", margin: "0 0 8px", color: "#8f8fae" }}>
+            🚑 Ambulance: <a href="tel:102" style={{ color: "#ff8a5c", textDecoration: "none" }}>102</a>{" "}
+            <button
+              onClick={() => navigator.clipboard.writeText("102")}
+              style={{ border: "none", background: "none", color: "#8f8fae", cursor: "pointer", fontSize: "11px" }}
+              title="Copy"
+            >
+              📋
+            </button>
           </p>
           <p style={{ fontSize: "13.5px", margin: "0 0 8px", color: "#8f8fae" }}>
             🚓 National Emergency: <a href="tel:112" style={{ color: "#ff8a5c", textDecoration: "none" }}>112</a>
