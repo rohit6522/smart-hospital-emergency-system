@@ -283,7 +283,12 @@ function HospitalList() {
                       </>
                     ) : (
                       <>
-                        <td style={{ fontWeight: "600" }}>{hospital.name}</td>
+                        <td style={{ fontWeight: "600" }}>
+                          {hospital.name}
+                          {hospital.id > hospitals.length - 5 && hospitals.length > 5 && (
+                            <span style={{ marginLeft: "6px", fontSize: "10px", background: "#2a9d8f", color: "white", padding: "1px 6px", borderRadius: "8px" }}>NEW</span>
+                          )}
+                        </td>
                         <td>{hospital.address}</td>
                         <td><b>{hospital.availableIcuBeds}</b> / {hospital.totalIcuBeds}</td>
                         <td>{hospital.bloodBankAvailable ? "✅" : "❌"}</td>
