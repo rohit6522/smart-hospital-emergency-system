@@ -134,7 +134,7 @@ function Footer() {
 
         {/* Contact column */}
         <div>
-          <div style={headingStyle}>Emergency Contacts</div>
+                   <div style={headingStyle}>📞 Emergency Contacts</div>
           <p style={{ fontSize: "13.5px", margin: "0 0 8px", color: "#8f8fae" }}>
             🚑 Ambulance: <a href="tel:102" style={{ color: "#ff8a5c", textDecoration: "none" }}>102</a>{" "}
             <button

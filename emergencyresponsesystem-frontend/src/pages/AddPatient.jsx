@@ -39,8 +39,6 @@ function AddPatient() {
 
   };
 
-  
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
