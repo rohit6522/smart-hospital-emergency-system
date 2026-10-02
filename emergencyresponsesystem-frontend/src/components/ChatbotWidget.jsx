@@ -9,13 +9,13 @@ function ChatbotWidget() {
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
   const bottomRef = useRef(null);
-  
+
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, open]);
 
-    const inputRef = useRef(null);
+  const inputRef = useRef(null);
   useEffect(() => {
     if (open) inputRef.current?.focus();
   }, [open]);
@@ -151,13 +151,14 @@ function ChatbotWidget() {
           gap: 8px;
         }
 
-        .chatbot-bubble {
-          max-width: 85%;
-          padding: 9px 13px;
-          border-radius: 14px;
-          font-size: 13px;
-          line-height: 1.4;
-        }
+       .chatbot-bubble {
+  max-width: 85%;
+  padding: 9px 13px;
+  border-radius: 14px;
+  font-size: 13px;
+  line-height: 1.4;
+  word-wrap: break-word;
+}
         .chatbot-bubble.bot {
           background: rgba(69,123,157,0.12);
           color: #333;
