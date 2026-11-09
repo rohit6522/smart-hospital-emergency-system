@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import api from "../services/api";
+import { AlertIcon, AmbulanceIcon, ArrowLeftIcon, MapPinIcon } from "../components/Icons";
 
 function AddAmbulance() {
   const navigate = useNavigate();
@@ -18,22 +19,24 @@ function AddAmbulance() {
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+    if (error) setError(null);
   };
 
   const detectLocation = () => {
     if (!navigator.geolocation) {
-      setError("Geolocation not supported by your browser.");
+      setError("Geolocation is not supported by your browser.");
       return;
     }
+    setError(null);
     navigator.geolocation.getCurrentPosition(
       (position) => {
-        setFormData({
-          ...formData,
+        setFormData((prev) => ({
+          ...prev,
           currentLatitude: position.coords.latitude.toFixed(6),
           currentLongitude: position.coords.longitude.toFixed(6),
-        });
+        }));
       },
-      () => setError("Unable to detect location. Please enter manually.")
+      () => setError("Unable to detect current GPS location. Please enter coordinates manually.")
     );
   };
 
@@ -47,147 +50,199 @@ function AddAmbulance() {
         currentLatitude: parseFloat(formData.currentLatitude),
         currentLongitude: parseFloat(formData.currentLongitude),
         assignedHospitalId: formData.assignedHospitalId
-          ? parseInt(formData.assignedHospitalId)
+          ? parseInt(formData.assignedHospitalId, 10)
           : null,
       });
       navigate("/ambulances");
-    } catch (err) {
-      setError("Failed to add ambulance. Please check the form and try again.");
+    } catch {
+      setError("Failed to register ambulance. Please verify the inputs and try again.");
       setSubmitting(false);
     }
   };
 
   return (
-    <div className="responsive-container" style={{ padding: "40px", fontFamily: "Arial, sans-serif", maxWidth: "600px", margin: "0 auto" }}>
-      <h1>➕ Add New Ambulance</h1>
+    <div className="page-container page-container--narrow">
+      <Link to="/ambulances" className="hc-back-link">
+        <ArrowLeftIcon size={16} />
+        <span>Back to Ambulance Fleet</span>
+      </Link>
 
-      <form onSubmit={handleSubmit} style={{ marginTop: "20px" }}>
-        <div style={{ marginBottom: "15px" }}>
-           <label>Vehicle Number<span style={{ color: "#e63946" }}>*</span></label>
-          <input
-            type="text"
-            name="vehicleNumber"
-            value={formData.vehicleNumber}
-            onChange={handleChange}
-            placeholder="e.g. BR01AB1234"
-            required
-            style={{ width: "100%", padding: "8px", marginTop: "5px" }}
-          />
+      <div className="page-header" style={{ marginBottom: "1.25rem" }}>
+        <div>
+          <h1 className="page-title">
+            <AmbulanceIcon size={26} />
+            <span>Add New Ambulance</span>
+          </h1>
+          <p className="page-subtitle">
+            Register an emergency vehicle unit, assign driver contact information, and set initial GPS telemetry.
+          </p>
         </div>
+      </div>
 
-        <div style={{ display: "flex", gap: "15px", marginBottom: "20px" }}>
-          <div style={{ flex: 1 }}>
-            <label>Driver Name <span style={{ color: "#e63946" }}>*</span></label>
-            <input
-              type="text"
-              name="driverName"
-              value={formData.driverName}
-              onChange={handleChange}
-              required
-              style={{ width: "100%", padding: "8px", marginTop: "5px" }}
-            />
-          </div>
-          <div style={{ flex: 1 }}>
-            <label>Driver Contact <span style={{ color: "#e63946" }}>*</span></label>
-            <input
-              type="text"
-              name="driverContact"
-              value={formData.driverContact}
-              onChange={handleChange}
-              required
-              style={{ width: "100%", padding: "8px", marginTop: "5px" }}
-            />
-          </div>
-        </div>
+      <div className="hc-card hc-card--padded">
+        <form onSubmit={handleSubmit}>
+          <div className="form-grid">
+            <div className="form-group form-group--full">
+              <label htmlFor="amb-vehicle">
+                Vehicle Number <span className="required-mark">*</span>
+              </label>
+              <input
+                id="amb-vehicle"
+                type="text"
+                name="vehicleNumber"
+                value={formData.vehicleNumber}
+                onChange={handleChange}
+                placeholder="e.g. BR01AB1234"
+                required
+              />
+            </div>
 
-        <div style={{ marginBottom: "15px" }}>
-          <button
-            type="button"
-            onClick={detectLocation}
+            <div className="form-group">
+              <label htmlFor="amb-driver">
+                Driver Name <span className="required-mark">*</span>
+              </label>
+              <input
+                id="amb-driver"
+                type="text"
+                name="driverName"
+                value={formData.driverName}
+                onChange={handleChange}
+                placeholder="Full driver name"
+                required
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="amb-contact">
+                Driver Contact <span className="required-mark">*</span>
+              </label>
+              <input
+                id="amb-contact"
+                type="tel"
+                name="driverContact"
+                value={formData.driverContact}
+                onChange={handleChange}
+                placeholder="e.g. +91 9876543210"
+                required
+              />
+            </div>
+
+            <div className="form-group form-group--full">
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  flexWrap: "wrap",
+                  gap: "0.75rem",
+                  padding: "0.875rem 1rem",
+                  backgroundColor: "var(--color-surface-subtle)",
+                  border: "1px solid var(--color-border)",
+                  borderRadius: "var(--radius-md)",
+                }}
+              >
+                <div>
+                  <div style={{ fontWeight: 600, fontSize: "0.875rem", color: "var(--color-text)" }}>
+                    GPS Telemetry Coordinates
+                  </div>
+                  <div style={{ fontSize: "0.75rem", color: "var(--color-text-secondary)" }}>
+                    Populate coordinates from device GPS or enter manually below.
+                  </div>
+                </div>
+                <button type="button" onClick={detectLocation} className="btn btn-secondary btn-sm">
+                  <MapPinIcon size={15} />
+                  <span>Use Current Location</span>
+                </button>
+              </div>
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="amb-lat">
+                Current Latitude <span className="required-mark">*</span>
+              </label>
+              <input
+                id="amb-lat"
+                type="text"
+                name="currentLatitude"
+                value={formData.currentLatitude}
+                onChange={handleChange}
+                inputMode="decimal"
+                placeholder="e.g. 25.5941"
+                required
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="amb-lon">
+                Current Longitude <span className="required-mark">*</span>
+              </label>
+              <input
+                id="amb-lon"
+                type="text"
+                name="currentLongitude"
+                value={formData.currentLongitude}
+                onChange={handleChange}
+                inputMode="decimal"
+                placeholder="e.g. 85.1376"
+                required
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="amb-status">Operational Status</label>
+              <select
+                id="amb-status"
+                name="status"
+                value={formData.status}
+                onChange={handleChange}
+              >
+                <option value="AVAILABLE">AVAILABLE</option>
+                <option value="ON_DUTY">ON_DUTY</option>
+                <option value="OFFLINE">OFFLINE</option>
+              </select>
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="amb-hospital">Assigned Hospital ID</label>
+              <input
+                id="amb-hospital"
+                type="number"
+                name="assignedHospitalId"
+                min="1"
+                value={formData.assignedHospitalId}
+                onChange={handleChange}
+                placeholder="Optional (e.g. 1)"
+              />
+            </div>
+          </div>
+
+          {error && (
+            <div role="alert" className="hc-alert hc-alert--danger" style={{ marginTop: "1.25rem" }}>
+              <AlertIcon size={18} />
+              <span>{error}</span>
+            </div>
+          )}
+
+          <div
             style={{
-              padding: "8px 14px",
-              backgroundColor: "#2a9d8f",
-              color: "white",
-              border: "none",
-              borderRadius: "6px",
-              cursor: "pointer",
-              fontSize: "13px",
+              marginTop: "1.5rem",
+              paddingTop: "1.25rem",
+              borderTop: "1px solid var(--color-border)",
+              display: "flex",
+              justifyContent: "flex-end",
+              gap: "0.75rem",
+              flexWrap: "wrap",
             }}
           >
-            📍 Use Current Location
-          </button>
-        </div>
-
-        <div style={{ display: "flex", gap: "15px", marginBottom: "20px" }}>
-          <div style={{ flex: 1 }}>
-            <label>Current Latitude</label>
-            <input
-              type="text"
-              name="currentLatitude"
-              value={formData.currentLatitude}
-              onChange={handleChange}
-              required
-              style={{ width: "100%", padding: "8px", marginTop: "5px" }}
-            />
+            <Link to="/ambulances" className="btn btn-outline">
+              Cancel
+            </Link>
+            <button type="submit" disabled={submitting} className="btn btn-primary">
+              {submitting ? "Saving..." : "Save Ambulance Unit"}
+            </button>
           </div>
-          <div style={{ flex: 1 }}>
-            <label>Current Longitude</label>
-            <input
-              type="text"
-              name="currentLongitude"
-              value={formData.currentLongitude}
-              onChange={handleChange}
-              required
-              style={{ width: "100%", padding: "8px", marginTop: "5px" }}
-            />
-          </div>
-        </div>
-
-        <div style={{ display: "flex", gap: "15px", marginBottom: "20px" }}>
-          <div style={{ flex: 1 }}>
-            <label>Status</label>
-            <select
-              name="status"
-              value={formData.status}
-              onChange={handleChange}
-              style={{ width: "100%", padding: "8px", marginTop: "5px" }}
-            >
-              <option value="AVAILABLE">AVAILABLE</option>
-              <option value="ON_DUTY">ON_DUTY</option>
-              <option value="OFFLINE">OFFLINE</option>
-            </select>
-          </div>
-          <div style={{ flex: 1 }}>
-           <label>Assigned Hospital ID <span style={{ color: "#e63946" }}>*</span></label>
-            <input
-              type="number"
-              name="assignedHospitalId"
-              value={formData.assignedHospitalId}
-              onChange={handleChange}
-              placeholder="e.g. 1"
-              style={{ width: "100%", padding: "8px", marginTop: "5px" }}
-            />
-          </div>
-        </div>
-
-        {error && <p style={{ color: "red" }}>{error}</p>}
-
-        <button
-          type="submit"
-          disabled={submitting}
-          style={{
-            padding: "12px 24px",
-            backgroundColor: "#2a9d8f",
-            color: "white",
-            border: "none",
-            borderRadius: "6px",
-            fontSize: "16px",
-            cursor: "pointer",
-          }}
-        >
-          {submitting ? "Saving..." : "Save Ambulance"}
-        </button>
-      </form>
+        </form>
+      </div>
     </div>
   );
 }

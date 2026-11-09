@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { AlertIcon } from "./Icons";
 
 function OfflineBanner() {
   const [isOffline, setIsOffline] = useState(!navigator.onLine);
@@ -18,22 +19,24 @@ function OfflineBanner() {
 
   return (
     <div
-      className="offline-banner"
+      role="alert"
       style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        right: 0,
-        background: "#e63946",
-        color: "white",
-        textAlign: "center",
-        padding: "8px",
-        fontSize: "13px",
-        fontWeight: "600",
+        position: "sticky",
+        insetBlockStart: 0,
         zIndex: 2000,
+        backgroundColor: "var(--color-danger)",
+        color: "#FFFFFF",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: "0.5rem",
+        padding: "0.5rem 1rem",
+        fontSize: "0.875rem",
+        fontWeight: 600,
       }}
     >
-      ⚠️ You are offline. Some features may not work until connection is restored.
+      <AlertIcon size={16} />
+      <span>You are currently offline. Live routing and fleet updates require an active connection.</span>
     </div>
   );
 }

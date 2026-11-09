@@ -1,8 +1,65 @@
-import { useEffect, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import api from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import Loader from "../components/Loader";
-const EMERGENCY_TYPES = ["Trauma", "Cardiac", "Accident", "Pediatric", "Neuro", "Burns", "Poisoning", "Maternity", "Respiratory", "General"];
+import ConfirmDialog from "../components/ConfirmDialog";
+import Toast from "../components/Toast";
+import {
+  AlertIcon,
+  CloseIcon,
+  CopyIcon,
+  EditIcon,
+  ExternalLinkIcon,
+  HospitalIcon,
+  PlusIcon,
+  SearchIcon,
+  TrashIcon,
+} from "../components/Icons";
+
+const EMERGENCY_TYPES = [
+  "Trauma",
+  "Cardiac",
+  "Accident",
+  "Pediatric",
+  "Neuro",
+  "Burns",
+  "Poisoning",
+  "Maternity",
+  "Respiratory",
+  "General",
+];
+
+const BLOOD_FIELDS = [
+  { key: "bloodAPos", label: "A+" },
+  { key: "bloodANeg", label: "A-" },
+  { key: "bloodBPos", label: "B+" },
+  { key: "bloodBNeg", label: "B-" },
+  { key: "bloodOPos", label: "O+" },
+  { key: "bloodONeg", label: "O-" },
+  { key: "bloodABPos", label: "AB+" },
+  { key: "bloodABNeg", label: "AB-" },
+];
+
+const EMPTY_HOSPITAL_FORM = {
+  name: "",
+  address: "",
+  latitude: "",
+  longitude: "",
+  totalIcuBeds: 0,
+  availableIcuBeds: 0,
+  bloodBankAvailable: true,
+  bloodAPos: 0,
+  bloodANeg: 0,
+  bloodBPos: 0,
+  bloodBNeg: 0,
+  bloodOPos: 0,
+  bloodONeg: 0,
+  bloodABPos: 0,
+  bloodABNeg: 0,
+  availableDoctors: 0,
+  emergencyTypes: ["General"],
+  contactNumber: "",
+};
 
 function HospitalList() {
   const [hospitals, setHospitals] = useState([]);
@@ -13,39 +70,94 @@ function HospitalList() {
   const [searchTerm, setSearchTerm] = useState("");
   const [emergencyFilter, setEmergencyFilter] = useState("All");
   const [onlyAvailableIcu, setOnlyAvailableIcu] = useState(false);
-  const [copiedMsg, setCopiedMsg] = useState("");
-  const [editingId, setEditingId] = useState(null);
-  const [editForm, setEditForm] = useState({});
 
-  const fetchHospitals = async () => {
-    try {
-      const response = await api.get("/hospitals");
-      setHospitals(response.data);
-      setLoading(false);
-    } catch (err) {
-      setError("Failed to load hospitals. Is the backend running?");
-      setLoading(false);
-    }
+  const [toast, setToast] = useState(null);
+  const [deleteTarget, setDeleteTarget] = useState(null);
+
+  // Add/Edit Modal state
+  const [modalMode, setModalMode] = useState(null); // "add" | "edit" | null
+  const [editingId, setEditingId] = useState(null);
+  const [formState, setFormState] = useState(EMPTY_HOSPITAL_FORM);
+  const [formError, setFormError] = useState(null);
+  const [saving, setSaving] = useState(false);
+
+  const dialogRef = useRef(null);
+  const nameInputRef = useRef(null);
+  const modalTitleId = useId();
+  const headingId = useId();
+
+  const showToast = (message, type = "success") => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 2500);
   };
 
   useEffect(() => {
-    fetchHospitals();
+    let active = true;
+    const loadHospitals = async () => {
+      try {
+        const response = await api.get("/hospitals");
+        if (active) {
+          setHospitals(response.data);
+          setLoading(false);
+        }
+      } catch {
+        if (active) {
+          setError("Failed to load hospitals. Please verify the backend service is running.");
+          setLoading(false);
+        }
+      }
+    };
+    loadHospitals();
+    return () => {
+      active = false;
+    };
   }, []);
 
-  const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this hospital?")) return;
+  useEffect(() => {
+    const dialog = dialogRef.current;
+    if (!dialog) return;
+    if (modalMode) {
+      if (!dialog.open) {
+        dialog.showModal();
+        nameInputRef.current?.focus();
+      }
+    } else if (dialog.open) {
+      dialog.close();
+    }
+  }, [modalMode]);
+
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
     try {
-      await api.delete(`/hospitals/${id}`);
-      setHospitals(hospitals.filter((h) => h.id !== id));
-    } catch (err) {
-      alert("Failed to delete hospital.");
+      await api.delete(`/hospitals/${deleteTarget.id}`);
+      setHospitals((prev) => prev.filter((h) => h.id !== deleteTarget.id));
+      showToast(`Removed ${deleteTarget.name}`);
+    } catch {
+      showToast("Failed to delete hospital.", "error");
+    } finally {
+      setDeleteTarget(null);
     }
   };
 
-  const startEdit = (hospital) => {
+  const openAddModal = () => {
+    setModalMode("add");
+    setEditingId(null);
+    setFormState(EMPTY_HOSPITAL_FORM);
+    setFormError(null);
+  };
+
+  const openEditModal = (hospital) => {
+    setModalMode("edit");
     setEditingId(hospital.id);
-    setEditForm({
+    setFormError(null);
+    setFormState({
       ...hospital,
+      latitude: hospital.latitude ?? "",
+      longitude: hospital.longitude ?? "",
+      totalIcuBeds: hospital.totalIcuBeds ?? 0,
+      availableIcuBeds: hospital.availableIcuBeds ?? 0,
+      availableDoctors: hospital.availableDoctors ?? 0,
+      bloodBankAvailable: Boolean(hospital.bloodBankAvailable),
       emergencyTypes: hospital.emergencyTypes || [],
       bloodAPos: hospital.bloodAPos ?? 0,
       bloodANeg: hospital.bloodANeg ?? 0,
@@ -55,337 +167,397 @@ function HospitalList() {
       bloodONeg: hospital.bloodONeg ?? 0,
       bloodABPos: hospital.bloodABPos ?? 0,
       bloodABNeg: hospital.bloodABNeg ?? 0,
+      contactNumber: hospital.contactNumber || "",
     });
   };
 
-  const cancelEdit = () => {
+  const closeModal = () => {
+    setModalMode(null);
     setEditingId(null);
-    setEditForm({});
+    setFormError(null);
   };
 
-  const handleEditChange = (field, value) => {
-    setEditForm({ ...editForm, [field]: value });
+  const handleFormChange = (field, value) => {
+    setFormState((prev) => ({ ...prev, [field]: value }));
+    if (formError) setFormError(null);
   };
 
   const toggleEmergencyType = (type) => {
-    const current = editForm.emergencyTypes || [];
+    const current = formState.emergencyTypes || [];
     if (current.includes(type)) {
-      handleEditChange("emergencyTypes", current.filter((t) => t !== type));
+      handleFormChange(
+        "emergencyTypes",
+        current.filter((t) => t !== type)
+      );
     } else {
-      handleEditChange("emergencyTypes", [...current, type]);
+      handleFormChange("emergencyTypes", [...current, type]);
     }
   };
 
-  const saveEdit = async (id) => {
-    if (!editForm.emergencyTypes || editForm.emergencyTypes.length === 0) {
-      alert("Please select at least one emergency type.");
+  const handleSaveHospital = async (e) => {
+    e.preventDefault();
+    if (!formState.emergencyTypes || formState.emergencyTypes.length === 0) {
+      setFormError("Please select at least one emergency type.");
       return;
     }
+
+    setSaving(true);
+    setFormError(null);
+
+    const payload = {
+      ...formState,
+      latitude: formState.latitude === "" ? null : parseFloat(formState.latitude),
+      longitude: formState.longitude === "" ? null : parseFloat(formState.longitude),
+      totalIcuBeds: parseInt(formState.totalIcuBeds, 10) || 0,
+      availableIcuBeds: parseInt(formState.availableIcuBeds, 10) || 0,
+      availableDoctors: parseInt(formState.availableDoctors, 10) || 0,
+      bloodAPos: parseInt(formState.bloodAPos, 10) || 0,
+      bloodANeg: parseInt(formState.bloodANeg, 10) || 0,
+      bloodBPos: parseInt(formState.bloodBPos, 10) || 0,
+      bloodBNeg: parseInt(formState.bloodBNeg, 10) || 0,
+      bloodOPos: parseInt(formState.bloodOPos, 10) || 0,
+      bloodONeg: parseInt(formState.bloodONeg, 10) || 0,
+      bloodABPos: parseInt(formState.bloodABPos, 10) || 0,
+      bloodABNeg: parseInt(formState.bloodABNeg, 10) || 0,
+    };
+
     try {
-      const updated = {
-        ...editForm,
-        totalIcuBeds: parseInt(editForm.totalIcuBeds),
-        availableIcuBeds: parseInt(editForm.availableIcuBeds),
-        availableDoctors: parseInt(editForm.availableDoctors),
-        bloodAPos: parseInt(editForm.bloodAPos) || 0,
-        bloodANeg: parseInt(editForm.bloodANeg) || 0,
-        bloodBPos: parseInt(editForm.bloodBPos) || 0,
-        bloodBNeg: parseInt(editForm.bloodBNeg) || 0,
-        bloodOPos: parseInt(editForm.bloodOPos) || 0,
-        bloodONeg: parseInt(editForm.bloodONeg) || 0,
-        bloodABPos: parseInt(editForm.bloodABPos) || 0,
-        bloodABNeg: parseInt(editForm.bloodABNeg) || 0,
-      };
-      const response = await api.put(`/hospitals/${id}`, updated);
-      setHospitals(hospitals.map((h) => (h.id === id ? response.data : h)));
-      setEditingId(null);
-    } catch (err) {
-      alert("Failed to update hospital.");
+      if (modalMode === "edit" && editingId !== null) {
+        const response = await api.put(`/hospitals/${editingId}`, payload);
+        setHospitals((prev) => prev.map((h) => (h.id === editingId ? response.data : h)));
+        showToast("Hospital details updated.");
+      } else {
+        const response = await api.post("/hospitals", payload);
+        setHospitals((prev) => [...prev, response.data]);
+        showToast("New hospital added.");
+      }
+      closeModal();
+    } catch {
+      setFormError("Failed to save hospital changes. Please verify all fields.");
+    } finally {
+      setSaving(false);
     }
   };
 
-  if (loading) return <Loader text="Loading hospitals..." />;
-  if (error) return <p style={{ padding: "20px", color: "red" }}>{error}</p>;
+  if (loading) return <Loader text="Loading hospital directory..." />;
+  if (error) {
+    return (
+      <div className="page-container">
+        <div role="alert" className="hc-alert hc-alert--danger">
+          <AlertIcon size={18} />
+          <span>{error}</span>
+        </div>
+      </div>
+    );
+  }
 
-  const emergencyTypesInData = ["All", ...new Set(hospitals.flatMap((h) => h.emergencyTypes || []))];
+  const emergencyTypesInData = [
+    "All",
+    ...new Set(hospitals.flatMap((h) => h.emergencyTypes || [])),
+  ];
 
   const filteredHospitals = hospitals.filter((hospital) => {
-        const matchesSearch =
+    const matchesSearch =
       hospital.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (hospital.contactNumber || "").includes(searchTerm);
+      (hospital.contactNumber || "").includes(searchTerm) ||
+      (hospital.address || "").toLowerCase().includes(searchTerm.toLowerCase());
     const matchesEmergency =
       emergencyFilter === "All" || (hospital.emergencyTypes || []).includes(emergencyFilter);
     const matchesIcu = !onlyAvailableIcu || hospital.availableIcuBeds > 0;
     return matchesSearch && matchesEmergency && matchesIcu;
   });
 
-  const inputStyle = { padding: "10px 12px", fontSize: "14px" };
-  const editInputStyle = { padding: "6px 8px", fontSize: "13px", width: "100%", minWidth: "80px" };
+  const totalOpenIcu = hospitals.reduce((acc, h) => acc + (h.availableIcuBeds || 0), 0);
+  const bloodBankCount = hospitals.filter((h) => h.bloodBankAvailable).length;
 
   return (
-    <div className="responsive-container" style={{ maxWidth: "1300px", margin: "0 auto", padding: "50px 20px" }}>
-      {copiedMsg && (
-        <div style={{ position: "fixed", top: "80px", right: "20px", background: "#2a9d8f", color: "white", padding: "8px 16px", borderRadius: "8px", fontSize: "13px", zIndex: 2000 }}>
-          {copiedMsg}
+    <div className="page-container">
+      <Toast toast={toast} onDismiss={() => setToast(null)} />
+
+      <div className="page-header">
+        <div>
+          <h1 id={headingId} className="page-title">
+            <HospitalIcon size={26} />
+            <span>Hospital Directory</span>
+          </h1>
+          <p className="page-subtitle">
+            Browse registered medical facilities with live ICU capacity, blood inventory, and emergency specialties.
+            {isAdmin && " Admin controls enabled for adding and updating facility resources."}
+          </p>
         </div>
-      )}
-      <h1 className="animate-fade-up" style={{ marginBottom: "6px" }}>🏥 Hospital List</h1>
-      <p className="animate-fade-up" style={{ color: "#6c757d", marginTop: 0, marginBottom: "24px" }}>
-        Browse all registered hospitals and their real-time resource availability.
-        {isAdmin && " Click 'Edit' to update live availability."}
-      </p>
 
-      {/* Filter Card */}
-      <div
-        className="glass-card form-row animate-fade-up"
-        style={{
-          padding: "20px",
-          marginBottom: "20px",
-          display: "flex",
-          gap: "15px",
-          flexWrap: "wrap",
-          alignItems: "center",
-        }}
-      >
-        <input
-          type="text"
-          placeholder="🔍 Search by hospital name..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          style={{ ...inputStyle, minWidth: "220px", flex: 1 }}
-        />
+        {isAdmin && (
+          <button type="button" onClick={openAddModal} className="btn btn-primary">
+            <PlusIcon size={16} />
+            <span>Add Hospital</span>
+          </button>
+        )}
+      </div>
 
-        <select
-          value={emergencyFilter}
-          onChange={(e) => setEmergencyFilter(e.target.value)}
-          style={inputStyle}
-        >
-          {emergencyTypesInData.map((type) => (
-            <option key={type} value={type}>
-              {type}
-            </option>
-          ))}
-        </select>
+      {/* Summary Strip */}
+      <div className="hc-summary-strip">
+        <div className="hc-card hc-mini-stat">
+          <span className="hc-mini-stat__label">Registered Hospitals</span>
+          <span className="hc-mini-stat__value tabular-nums">{hospitals.length}</span>
+        </div>
+        <div className="hc-card hc-mini-stat">
+          <span className="hc-mini-stat__label">Available ICU Beds</span>
+          <span className="hc-mini-stat__value tabular-nums" style={{ color: "var(--color-success-text)" }}>
+            {totalOpenIcu}
+          </span>
+        </div>
+        <div className="hc-card hc-mini-stat">
+          <span className="hc-mini-stat__label">Active Blood Banks</span>
+          <span className="hc-mini-stat__value tabular-nums" style={{ color: "var(--color-secondary)" }}>
+            {bloodBankCount}
+          </span>
+        </div>
+      </div>
 
-        <label style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "14px" }}>
+      {/* Filter Bar */}
+      <div className="hc-card hc-filter-bar">
+        <div className="hc-filter-search">
+          <label htmlFor="hospital-search" className="visually-hidden">
+            Search hospitals by name, address, or contact
+          </label>
+          <span className="hc-input-icon" aria-hidden="true">
+            <SearchIcon size={17} />
+          </span>
+          <input
+            id="hospital-search"
+            type="search"
+            placeholder="Search by hospital name, city, or phone..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            style={{ paddingInlineStart: "2.5rem" }}
+          />
+        </div>
+
+        <div style={{ minInlineSize: "190px" }}>
+          <label htmlFor="emergency-filter" className="visually-hidden">
+            Filter by emergency type
+          </label>
+          <select
+            id="emergency-filter"
+            value={emergencyFilter}
+            onChange={(e) => setEmergencyFilter(e.target.value)}
+          >
+            {emergencyTypesInData.map((type) => (
+              <option key={type} value={type}>
+                {type === "All" ? "All Emergency Types" : type}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <label className="hc-checkbox-label">
           <input
             type="checkbox"
             checked={onlyAvailableIcu}
             onChange={(e) => setOnlyAvailableIcu(e.target.checked)}
           />
-          Only ICU beds available
+          <span>Only open ICU beds</span>
         </label>
+
         <button
-          onClick={() => { setSearchTerm(""); setEmergencyFilter("All"); setOnlyAvailableIcu(false); }}
-          style={{ padding: "10px 16px", background: "rgba(0,0,0,0.05)", color: "#555", border: "none", borderRadius: "8px", cursor: "pointer", fontSize: "13px" }}
+          type="button"
+          onClick={() => {
+            setSearchTerm("");
+            setEmergencyFilter("All");
+            setOnlyAvailableIcu(false);
+          }}
+          className="btn btn-outline"
         >
-          Clear Filters
+          Reset
         </button>
       </div>
 
-      <p style={{ color: "#6c757d", fontSize: "13px" }}>
-        Showing {filteredHospitals.length} of {hospitals.length} hospitals
+      <p style={{ color: "var(--color-text-secondary)", fontSize: "0.875rem", margin: "0 0 0.875rem" }}>
+        Showing <strong className="tabular-nums">{filteredHospitals.length}</strong> of{" "}
+        <strong className="tabular-nums">{hospitals.length}</strong> hospitals
       </p>
 
       {filteredHospitals.length === 0 ? (
-        <p>No hospitals match your filters.</p>
+        <div className="empty-state">
+          <p style={{ margin: "0 0 0.75rem", fontWeight: 600, color: "var(--color-text)" }}>
+            No hospitals match your current filters.
+          </p>
+          <button
+            type="button"
+            onClick={() => {
+              setSearchTerm("");
+              setEmergencyFilter("All");
+              setOnlyAvailableIcu(false);
+            }}
+            className="btn btn-outline btn-sm"
+          >
+            Clear all filters
+          </button>
+        </div>
       ) : (
-        <div className="glass-card table-wrapper animate-fade-up" style={{ overflow: "hidden" }}>
-          <table cellPadding="12" style={{ borderCollapse: "collapse", width: "100%", fontSize: "14px" }}>
+        <div tabIndex={0} role="region" aria-labelledby={headingId} className="table-wrapper">
+          <table className="hc-table hc-table--stack">
             <thead>
-              <tr style={{ backgroundColor: "rgba(255,255,255,0.4)", borderBottom: "1px solid rgba(0,0,0,0.06)" }}>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Address</th>
-                <th title="Available / Total ICU beds">ICU Beds</th>
-                <th>Blood Bank</th>
-                <th>Blood Units</th>
-                <th>Doctors</th>
-                <th>Emergency Types</th>
-                <th>Contact</th>
-                {isAdmin && <th>Actions</th>}
+              <tr>
+                <th scope="col">ID</th>
+                <th scope="col">Hospital &amp; Location</th>
+                <th scope="col">ICU Beds</th>
+                <th scope="col">Blood Inventory</th>
+                <th scope="col">Doctors</th>
+                <th scope="col">Emergency Types</th>
+                <th scope="col">Contact</th>
+                <th scope="col">Actions</th>
               </tr>
             </thead>
             <tbody>
-              {filteredHospitals.map((hospital, i) => {
-                const isEditing = editingId === hospital.id;
+              {filteredHospitals.map((hospital) => {
+                const bloodUnits = BLOOD_FIELDS.map(({ key, label }) => [
+                  label,
+                  hospital[key] ?? 0,
+                ]).filter(([, count]) => count > 0);
+
+                const icuAvailable = hospital.availableIcuBeds || 0;
+                const icuTotal = hospital.totalIcuBeds || 0;
+                const icuBadgeClass =
+                  icuAvailable === 0
+                    ? "badge-danger"
+                    : icuAvailable <= 2
+                    ? "badge-warning"
+                    : "badge-success";
+
                 return (
-                  <tr
-                    key={hospital.id}
-                    style={{
-                      borderBottom: "1px solid rgba(0,0,0,0.05)",
-                      backgroundColor: isEditing ? "rgba(255,251,234,0.6)" : i % 2 === 0 ? "rgba(255,255,255,0.25)" : "rgba(255,255,255,0.05)",
-                    }}
-                  >
-                    <td>{hospital.id}</td>
+                  <tr key={hospital.id}>
+                    <td data-label="ID" className="tabular-nums text-muted">
+                      #{hospital.id}
+                    </td>
 
-                    {isEditing ? (
-                      <>
-                        <td><input style={editInputStyle} value={editForm.name} onChange={(e) => handleEditChange("name", e.target.value)} /></td>
-                        <td><input style={editInputStyle} value={editForm.address} onChange={(e) => handleEditChange("address", e.target.value)} /></td>
-                        <td style={{ display: "flex", gap: "4px" }}>
-                          <input style={{ ...editInputStyle, width: "45px" }} type="number" min="0" value={editForm.availableIcuBeds} onChange={(e) => handleEditChange("availableIcuBeds", e.target.value)} />
-                          /
-                          <input style={{ ...editInputStyle, width: "45px" }} type="number" value={editForm.totalIcuBeds} onChange={(e) => handleEditChange("totalIcuBeds", e.target.value)} />
-                        </td>
+                    <td data-label="Hospital" style={{ minInlineSize: "175px" }}>
+                      <div style={{ fontWeight: 600, color: "var(--color-primary)" }}>
+                        {hospital.name}
+                      </div>
+                      <div style={{ fontSize: "0.8125rem", color: "var(--color-text-secondary)", marginTop: "2px" }}>
+                        {hospital.address}
+                      </div>
+                    </td>
 
-                        <td>
-                          <select style={editInputStyle} value={editForm.bloodBankAvailable} onChange={(e) => handleEditChange("bloodBankAvailable", e.target.value === "true")}>
-                            <option value="true">Yes</option>
-                            <option value="false">No</option>
-                          </select>
-                        </td>
-                        <td style={{ minWidth: "200px" }}>
-                          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "3px" }}>
-                            {["APos:A+", "ANeg:A-", "BPos:B+", "BNeg:B-", "OPos:O+", "ONeg:O-", "ABPos:AB+", "ABNeg:AB-"].map((entry) => {
-                              const [field, label] = entry.split(":");
-                              return (
-                                <div key={field} style={{ display: "flex", alignItems: "center", gap: "3px", fontSize: "11px" }}>
-                                  <span style={{ width: "26px" }}>{label}</span>
-                                  <input
-                                    type="number"
-                                    min="0"
-                                    style={{ ...editInputStyle, width: "45px", padding: "3px 5px" }}
-                                    value={editForm[`blood${field}`]}
-                                    onChange={(e) => handleEditChange(`blood${field}`, e.target.value)}
-                                  />
-                                </div>
-                              );
-                            })}
-                          </div>
-                        </td>
+                    <td data-label="ICU Beds">
+                      <span className={`badge ${icuBadgeClass} tabular-nums`}>
+                        {icuAvailable} / {icuTotal} open
+                      </span>
+                    </td>
 
-                        <td><input style={{ ...editInputStyle, width: "60px" }} type="number" value={editForm.availableDoctors} onChange={(e) => handleEditChange("availableDoctors", e.target.value)} /></td>
-                        <td style={{ minWidth: "220px" }}>
-                          <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
-                            {EMERGENCY_TYPES.map((type) => (
-                              <label
-                                key={type}
-                                style={{
-                                  display: "flex",
-                                  alignItems: "center",
-                                  gap: "3px",
-                                  fontSize: "11px",
-                                  background: (editForm.emergencyTypes || []).includes(type) ? "rgba(69,123,157,0.15)" : "rgba(0,0,0,0.03)",
-                                  padding: "3px 7px",
-                                  borderRadius: "8px",
-                                  cursor: "pointer",
-                                }}
+                    <td data-label="Blood Inventory" style={{ minInlineSize: "170px" }}>
+                      {hospital.bloodBankAvailable ? (
+                        <div className="hc-chips-cell">
+                          {bloodUnits.length > 0 ? (
+                            bloodUnits.map(([label, count]) => (
+                              <span
+                                key={label}
+                                className={`badge tabular-nums ${count < 3 ? "badge-danger" : "badge-success"}`}
                               >
-                                <input
-                                  type="checkbox"
-                                  checked={(editForm.emergencyTypes || []).includes(type)}
-                                  onChange={() => toggleEmergencyType(type)}
-                                  style={{ margin: 0 }}
-                                />
-                                {type}
-                              </label>
-                            ))}
-                          </div>
-                        </td>
-                        <td><input style={editInputStyle} value={editForm.contactNumber} onChange={(e) => handleEditChange("contactNumber", e.target.value)} /></td>
-                        <td style={{ display: "flex", gap: "6px" }}>
-                          <button onClick={() => saveEdit(hospital.id)} style={{ padding: "6px 10px", background: "linear-gradient(135deg, #2a9d8f, #21867a)", color: "white", border: "none", borderRadius: "6px", cursor: "pointer", fontSize: "12px" }}>Save</button>
-                          <button onClick={cancelEdit} style={{ padding: "6px 10px", backgroundColor: "#999", color: "white", border: "none", borderRadius: "6px", cursor: "pointer", fontSize: "12px" }}>Cancel</button>
-                        </td>
-                      </>
-                    ) : (
-                      <>
-                        <td style={{ fontWeight: "600" }}>
-                          {hospital.name}
-                          {hospital.id > hospitals.length - 5 && hospitals.length > 5 && (
-                            <span style={{ marginLeft: "6px", fontSize: "10px", background: "#2a9d8f", color: "white", padding: "1px 6px", borderRadius: "8px" }}>NEW</span>
-                          )}
-                        </td>
-                        <td>{hospital.address}</td>
-                        <td><b>{hospital.availableIcuBeds}</b> / {hospital.totalIcuBeds}</td>
-                        <td>{hospital.bloodBankAvailable ? "✅" : "❌"}</td>
-                        <td style={{ minWidth: "180px" }}>
-                          {hospital.bloodBankAvailable ? (
-                            <div style={{ display: "flex", flexWrap: "wrap", gap: "4px" }}>
-                              {[
-                                ["A+", hospital.bloodAPos], ["A-", hospital.bloodANeg],
-                                ["B+", hospital.bloodBPos], ["B-", hospital.bloodBNeg],
-                                ["O+", hospital.bloodOPos], ["O-", hospital.bloodONeg],
-                                ["AB+", hospital.bloodABPos], ["AB-", hospital.bloodABNeg],
-                              ].filter(([, count]) => count > 0).map(([label, count]) => (
-                                <span
-                                  key={label}
-                                  style={{
-                                    background: count < 3 ? "rgba(230,57,70,0.12)" : "rgba(42,157,143,0.12)",
-                                    color: count < 3 ? "#e63946" : "#2a9d8f",
-                                    padding: "2px 8px",
-                                    borderRadius: "10px",
-                                    fontSize: "11px",
-                                    fontWeight: "700",
-                                  }}
-                                >
-                                  {label}: {count}
-                                </span>
-                              ))}
-                              {[hospital.bloodAPos, hospital.bloodANeg, hospital.bloodBPos, hospital.bloodBNeg, hospital.bloodOPos, hospital.bloodONeg, hospital.bloodABPos, hospital.bloodABNeg].every((c) => !c) && (
-                                <span style={{ fontSize: "11px", color: "#999" }}>Not set</span>
-                              )}
-                            </div>
+                                {label}: {count}
+                              </span>
+                            ))
                           ) : (
-                            <span style={{ fontSize: "12px", color: "#999" }}>N/A</span>
+                            <span className="badge badge-neutral">Bank active (units unset)</span>
                           )}
-                        </td>
-                        <td>{hospital.availableDoctors}</td>
-                        <td style={{ minWidth: "180px" }}>
-                          <div style={{ display: "flex", flexWrap: "wrap", gap: "4px" }}>
-                            {(hospital.emergencyTypes || []).length === 0 ? (
-                              <span style={{ color: "#e63946", fontSize: "12px", fontStyle: "italic" }}>⚠️ Not configured</span>
-                            ) : (
-                              hospital.emergencyTypes.map((type) => (
-                                <span
-                                  key={type}
-                                  style={{ background: "rgba(69,123,157,0.15)", color: "#457b9d", padding: "3px 9px", borderRadius: "12px", fontSize: "11px", fontWeight: "600" }}
-                                >
-                                  {type}
-                                </span>
-                              ))
-                            )}
-                          </div>
-                        </td>
-                        <td>
-                          {hospital.contactNumber}{" "}
+                        </div>
+                      ) : (
+                        <span className="badge badge-neutral">Not Available</span>
+                      )}
+                    </td>
+
+                    <td data-label="Doctors" className="tabular-nums" style={{ fontWeight: 600 }}>
+                      {hospital.availableDoctors}
+                    </td>
+
+                    <td data-label="Emergency Types" style={{ minInlineSize: "155px" }}>
+                      {(hospital.emergencyTypes || []).length === 0 ? (
+                        <span className="badge badge-warning">Not configured</span>
+                      ) : (
+                        <div className="hc-chips-cell">
+                          {hospital.emergencyTypes.map((type) => (
+                            <span key={type} className="badge badge-info">
+                              {type}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </td>
+
+                    <td data-label="Contact">
+                      <div style={{ display: "inline-flex", alignItems: "center", gap: "0.375rem" }}>
+                        <span className="tabular-nums">{hospital.contactNumber || "—"}</span>
+                        {hospital.contactNumber && (
                           <button
+                            type="button"
                             onClick={() => {
                               navigator.clipboard.writeText(hospital.contactNumber);
-                              setCopiedMsg("Copied!");
-                              setTimeout(() => setCopiedMsg(""), 1500);
+                              showToast(`Copied ${hospital.contactNumber}`);
                             }}
-
-                            title="Copy number"
-                            style={{ border: "none", background: "none", cursor: "pointer", fontSize: "12px" }}
+                            aria-label={`Copy contact number for ${hospital.name}`}
+                            className="btn btn-outline btn-sm"
+                            style={{ minBlockSize: "28px", padding: "0 0.45rem" }}
                           >
-                            📋
+                            <CopyIcon size={13} />
                           </button>
-                        </td>
-                        {isAdmin && (
-                          <td style={{ display: "flex", gap: "6px" }}>
-
-                            <a
-                              href={`https://www.openstreetmap.org/?mlat=${hospital.latitude}&mlon=${hospital.longitude}#map=15/${hospital.latitude}/${hospital.longitude}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              style={{ padding: "6px 12px", background: "#457b9d", color: "white", borderRadius: "6px", fontSize: "12px", textDecoration: "none" }}
-                            >
-                              🗺️ Map
-                            </a>
-                            <button
-                              onClick={() => navigator.clipboard.writeText(`${hospital.name} - ${hospital.address} - Contact: ${hospital.contactNumber}`)}
-                              style={{ padding: "6px 12px", background: "#999", color: "white", border: "none", borderRadius: "6px", cursor: "pointer", fontSize: "12px" }}
-                            >
-                              Copy Info
-                            </button>
-                            <button onClick={() => startEdit(hospital)} style={{ padding: "6px 12px", background: "linear-gradient(135deg, #457b9d, #2d5a7a)", color: "white", border: "none", borderRadius: "6px", cursor: "pointer", fontSize: "12px" }}>Edit</button>
-                            <button onClick={() => handleDelete(hospital.id)} style={{ padding: "6px 12px", background: "linear-gradient(135deg, #e63946, #c1121f)", color: "white", border: "none", borderRadius: "6px", cursor: "pointer", fontSize: "12px" }}>Delete</button>
-                          </td>
                         )}
-                      </>
-                    )}
+                      </div>
+                    </td>
+
+                    <td data-label="Actions" style={{ minInlineSize: "155px" }}>
+                      <div className="hc-chips-cell" style={{ gap: "0.375rem" }}>
+                        {hospital.latitude && hospital.longitude && (
+                          <a
+                            href={`https://www.openstreetmap.org/?mlat=${hospital.latitude}&mlon=${hospital.longitude}#map=15/${hospital.latitude}/${hospital.longitude}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="btn btn-outline btn-sm"
+                            aria-label={`View ${hospital.name} on OpenStreetMap`}
+                          >
+                            <span>Map</span>
+                            <ExternalLinkIcon size={12} />
+                          </a>
+                        )}
+
+                        {isAdmin && (
+                          <>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                navigator.clipboard.writeText(
+                                  `${hospital.name} - ${hospital.address} - Contact: ${hospital.contactNumber}`
+                                );
+                                showToast("Hospital summary copied.");
+                              }}
+                              className="btn btn-outline btn-sm"
+                              aria-label={`Copy summary for ${hospital.name}`}
+                            >
+                              <CopyIcon size={13} />
+                              <span>Copy</span>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => openEditModal(hospital)}
+                              className="btn btn-ghost-secondary btn-sm"
+                              aria-label={`Edit ${hospital.name}`}
+                            >
+                              <EditIcon size={13} />
+                              <span>Edit</span>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setDeleteTarget(hospital)}
+                              className="btn btn-ghost-danger btn-sm"
+                              aria-label={`Delete ${hospital.name}`}
+                            >
+                              <TrashIcon size={13} />
+                              <span>Delete</span>
+                            </button>
+                          </>
+                        )}
+                      </div>
+                    </td>
                   </tr>
                 );
               })}
@@ -393,6 +565,268 @@ function HospitalList() {
           </table>
         </div>
       )}
+
+      {/* Add / Edit Hospital Native Modal */}
+      <dialog
+        ref={dialogRef}
+        className="hc-dialog"
+        aria-labelledby={modalTitleId}
+        onCancel={(e) => {
+          e.preventDefault();
+          closeModal();
+        }}
+        onClick={(e) => {
+          const dialog = dialogRef.current;
+          if (!dialog) return;
+          const rect = dialog.getBoundingClientRect();
+          if (
+            e.clientX < rect.left ||
+            e.clientX > rect.right ||
+            e.clientY < rect.top ||
+            e.clientY > rect.bottom
+          ) {
+            closeModal();
+          }
+        }}
+      >
+        <div className="hc-dialog__header">
+          <h2 id={modalTitleId} style={{ margin: 0, fontSize: "1.125rem" }}>
+            {modalMode === "edit" ? "Edit Hospital Resources" : "Register New Hospital"}
+          </h2>
+          <button
+            type="button"
+            onClick={closeModal}
+            className="btn btn-outline btn-sm"
+            aria-label="Close hospital modal"
+            style={{ minInlineSize: "34px", padding: "0 0.5rem" }}
+          >
+            <CloseIcon size={16} />
+          </button>
+        </div>
+
+        <form onSubmit={handleSaveHospital} style={{ display: "contents" }}>
+          <div className="hc-dialog__body">
+            <div className="form-grid">
+              <div className="form-group">
+                <label htmlFor="hosp-name">
+                  Hospital Name <span className="required-mark">*</span>
+                </label>
+                <input
+                  ref={nameInputRef}
+                  id="hosp-name"
+                  type="text"
+                  value={formState.name}
+                  onChange={(e) => handleFormChange("name", e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="hosp-contact">Contact Number</label>
+                <input
+                  id="hosp-contact"
+                  type="tel"
+                  value={formState.contactNumber}
+                  onChange={(e) => handleFormChange("contactNumber", e.target.value)}
+                />
+              </div>
+
+              <div className="form-group form-group--full">
+                <label htmlFor="hosp-address">
+                  Address <span className="required-mark">*</span>
+                </label>
+                <input
+                  id="hosp-address"
+                  type="text"
+                  value={formState.address}
+                  onChange={(e) => handleFormChange("address", e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="hosp-lat">Latitude</label>
+                <input
+                  id="hosp-lat"
+                  type="number"
+                  step="any"
+                  value={formState.latitude}
+                  onChange={(e) => handleFormChange("latitude", e.target.value)}
+                  placeholder="e.g. 25.5941"
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="hosp-lon">Longitude</label>
+                <input
+                  id="hosp-lon"
+                  type="number"
+                  step="any"
+                  value={formState.longitude}
+                  onChange={(e) => handleFormChange("longitude", e.target.value)}
+                  placeholder="e.g. 85.1376"
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="hosp-icu-avail">Available ICU Beds</label>
+                <input
+                  id="hosp-icu-avail"
+                  type="number"
+                  min="0"
+                  value={formState.availableIcuBeds}
+                  onChange={(e) => handleFormChange("availableIcuBeds", e.target.value)}
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="hosp-icu-total">Total ICU Beds</label>
+                <input
+                  id="hosp-icu-total"
+                  type="number"
+                  min="0"
+                  value={formState.totalIcuBeds}
+                  onChange={(e) => handleFormChange("totalIcuBeds", e.target.value)}
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="hosp-doctors">Available Doctors</label>
+                <input
+                  id="hosp-doctors"
+                  type="number"
+                  min="0"
+                  value={formState.availableDoctors}
+                  onChange={(e) => handleFormChange("availableDoctors", e.target.value)}
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="hosp-blood-bank">Blood Bank Status</label>
+                <select
+                  id="hosp-blood-bank"
+                  value={String(formState.bloodBankAvailable)}
+                  onChange={(e) => handleFormChange("bloodBankAvailable", e.target.value === "true")}
+                >
+                  <option value="true">Available</option>
+                  <option value="false">Unavailable</option>
+                </select>
+              </div>
+            </div>
+
+            <fieldset style={{ border: "1px solid var(--color-border)", borderRadius: "var(--radius-md)", padding: "1rem", marginTop: "1.25rem" }}>
+              <legend style={{ padding: "0 0.5rem", fontSize: "0.8125rem", fontWeight: 700, color: "var(--color-primary)" }}>
+                Blood Inventory (Units)
+              </legend>
+              <div className="hc-blood-grid">
+                {BLOOD_FIELDS.map(({ key, label }) => (
+                  <div key={key}>
+                    <label htmlFor={`hosp-${key}`} style={{ fontSize: "0.75rem" }}>
+                      {label}
+                    </label>
+                    <input
+                      id={`hosp-${key}`}
+                      type="number"
+                      min="0"
+                      value={formState[key]}
+                      onChange={(e) => handleFormChange(key, e.target.value)}
+                      style={{ minBlockSize: "38px", padding: "0.375rem 0.625rem" }}
+                    />
+                  </div>
+                ))}
+              </div>
+            </fieldset>
+
+            <fieldset style={{ border: "1px solid var(--color-border)", borderRadius: "var(--radius-md)", padding: "1rem", marginTop: "1.25rem" }}>
+              <legend style={{ padding: "0 0.5rem", fontSize: "0.8125rem", fontWeight: 700, color: "var(--color-primary)" }}>
+                Supported Emergency Types <span className="required-mark">*</span>
+              </legend>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
+                {EMERGENCY_TYPES.map((type) => {
+                  const checked = (formState.emergencyTypes || []).includes(type);
+                  return (
+                    <label
+                      key={type}
+                      className={`hc-pill-check ${checked ? "is-checked" : ""}`}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={checked}
+                        onChange={() => toggleEmergencyType(type)}
+                      />
+                      <span>{type}</span>
+                    </label>
+                  );
+                })}
+              </div>
+            </fieldset>
+
+            {formError && (
+              <div role="alert" className="hc-alert hc-alert--danger" style={{ marginTop: "1rem" }}>
+                <AlertIcon size={18} />
+                <span>{formError}</span>
+              </div>
+            )}
+          </div>
+
+          <div className="hc-dialog__footer">
+            <button type="button" onClick={closeModal} className="btn btn-outline">
+              Cancel
+            </button>
+            <button type="submit" disabled={saving} className="btn btn-primary">
+              {saving ? "Saving..." : modalMode === "edit" ? "Save Changes" : "Create Hospital"}
+            </button>
+          </div>
+        </form>
+      </dialog>
+
+      {/* Delete Confirmation */}
+      <ConfirmDialog
+        open={Boolean(deleteTarget)}
+        title="Delete hospital record?"
+        message={
+          deleteTarget
+            ? `Are you sure you want to remove "${deleteTarget.name}" from the directory? This action cannot be undone.`
+            : ""
+        }
+        confirmLabel="Delete Hospital"
+        cancelLabel="Cancel"
+        variant="danger"
+        onConfirm={confirmDelete}
+        onCancel={() => setDeleteTarget(null)}
+      />
+
+      <style>{`
+        .hc-blood-grid {
+          display: grid;
+          grid-template-columns: repeat(4, minmax(0, 1fr));
+          gap: 0.75rem;
+        }
+        .hc-pill-check {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.375rem;
+          margin: 0;
+          padding: 0.375rem 0.75rem;
+          border-radius: var(--radius-pill);
+          border: 1px solid var(--color-border);
+          background-color: var(--color-surface-subtle);
+          font-size: 0.8125rem;
+          font-weight: 600;
+          cursor: pointer;
+        }
+        .hc-pill-check.is-checked {
+          background-color: var(--color-secondary-tint);
+          border-color: var(--color-secondary);
+          color: var(--color-primary);
+        }
+
+        @media (max-width: 560px) {
+          .hc-blood-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+          }
+        }
+      `}</style>
     </div>
   );
 }

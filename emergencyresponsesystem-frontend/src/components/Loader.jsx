@@ -1,29 +1,38 @@
 function Loader({ text = "Loading..." }) {
   return (
     <div
+      role="status"
+      aria-live="polite"
       style={{
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
-        padding: "80px 20px",
-        gap: "16px",
+        padding: "4.5rem 1.25rem",
+        gap: "0.875rem",
       }}
     >
-      <div className="loader-spinner" />
-      <p style={{ color: "#6c757d", fontSize: "14px", fontWeight: "500" }}>{text}</p>
+      <div className="hc-loader-ring" aria-hidden="true" />
+      <p style={{ color: "var(--color-text-secondary)", fontSize: "0.9375rem", fontWeight: 500, margin: 0 }}>
+        {text}
+      </p>
 
       <style>{`
-        .loader-spinner {
-          width: 42px;
-          height: 42px;
+        .hc-loader-ring {
+          inline-size: 40px;
+          block-size: 40px;
           border-radius: 50%;
-          border: 3px solid rgba(230, 57, 70, 0.15);
-          border-top-color: #e63946;
-          animation: spin 0.8s linear infinite;
+          border: 3px solid var(--color-border);
+          border-top-color: var(--color-secondary);
+          animation: hcSpin 0.8s linear infinite;
         }
-        @keyframes spin {
+        @keyframes hcSpin {
           to { transform: rotate(360deg); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .hc-loader-ring {
+            animation: hcSpin 3s linear infinite !important;
+          }
         }
       `}</style>
     </div>

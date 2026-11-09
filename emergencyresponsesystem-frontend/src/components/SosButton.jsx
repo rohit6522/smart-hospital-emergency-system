@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { EmergencyIcon } from "./Icons";
 
 function SosButton() {
   const navigate = useNavigate();
   const location = useLocation();
   const [detecting, setDetecting] = useState(false);
 
-  // Don't show SOS button on the request-emergency page itself (already there) or auth pages
   const hiddenOn = ["/request-emergency", "/login", "/signup"];
   if (hiddenOn.includes(location.pathname)) return null;
 
@@ -35,17 +35,18 @@ function SosButton() {
   return (
     <>
       <button
+        type="button"
         onClick={handleSOS}
         disabled={detecting}
         className="sos-btn"
-        aria-label="Emergency SOS - one tap to find nearest hospital"
+        aria-label="Emergency SOS - locate me and find the nearest hospital"
       >
         {detecting ? (
-          <span style={{ fontSize: "11px", fontWeight: "700" }}>Locating…</span>
+          <span style={{ fontSize: "0.75rem", fontWeight: 700 }}>Locating…</span>
         ) : (
           <>
-            <span style={{ fontSize: "20px", lineHeight: 1 }}>🚨</span>
-            <span style={{ fontSize: "10px", fontWeight: "800", letterSpacing: "0.5px" }}>SOS</span>
+            <EmergencyIcon size={18} />
+            <span style={{ fontSize: "0.8125rem", fontWeight: 700, letterSpacing: "0.03em" }}>SOS</span>
           </>
         )}
       </button>
@@ -53,42 +54,36 @@ function SosButton() {
       <style>{`
         .sos-btn {
           position: fixed;
-          bottom: 26px;
-          right: 26px;
-          width: 64px;
-          height: 64px;
-          border-radius: 50%;
-          background: linear-gradient(135deg, #e63946, #c1121f);
-          border: 3px solid rgba(255,255,255,0.85);
-          color: white;
-          display: flex;
-          flex-direction: column;
+          inset-block-end: 1.5rem;
+          inset-inline-end: 1.5rem;
+          min-inline-size: 64px;
+          block-size: 52px;
+          padding: 0 1.125rem;
+          border-radius: 999px;
+          background-color: var(--color-danger);
+          border: 2px solid #FFFFFF;
+          color: #FFFFFF;
+          display: inline-flex;
           align-items: center;
           justify-content: center;
-          gap: 1px;
-          cursor: pointer;
+          gap: 0.45rem;
           z-index: 999;
-          box-shadow: 0 6px 20px rgba(230,57,70,0.5);
-          animation: sosPulse 1.8s infinite;
-          transition: transform 0.15s ease;
+          box-shadow: 0 4px 14px rgba(220, 38, 38, 0.35);
+          transition: background-color 0.15s ease, transform 0.15s ease;
         }
-        .sos-btn:hover {
-          transform: scale(1.08);
+        .sos-btn:hover:not(:disabled) {
+          background-color: var(--color-danger-dark);
+          transform: translateY(-2px);
         }
-        .sos-btn:active {
-          transform: scale(0.96);
+        .sos-btn:active:not(:disabled) {
+          transform: translateY(0);
         }
-        @keyframes sosPulse {
-          0% { box-shadow: 0 6px 20px rgba(230,57,70,0.5), 0 0 0 0 rgba(230,57,70,0.55); }
-          70% { box-shadow: 0 6px 20px rgba(230,57,70,0.5), 0 0 0 16px rgba(230,57,70,0); }
-          100% { box-shadow: 0 6px 20px rgba(230,57,70,0.5), 0 0 0 0 rgba(230,57,70,0); }
-        }
-        @media (max-width: 600px) {
+        @media (max-width: 640px) {
           .sos-btn {
-            width: 56px;
-            height: 56px;
-            bottom: 18px;
-            right: 18px;
+            inset-block-end: 1rem;
+            inset-inline-end: 1rem;
+            block-size: 46px;
+            padding: 0 0.95rem;
           }
         }
       `}</style>

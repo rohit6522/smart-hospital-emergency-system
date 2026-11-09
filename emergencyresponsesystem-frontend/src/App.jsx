@@ -1,4 +1,5 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { useEffect } from "react";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Home from "./pages/Home";
 import HospitalList from "./pages/HospitalList";
@@ -14,8 +15,6 @@ import AdminDashboard from "./pages/AdminDashboard";
 import Footer from "./components/Footer";
 import SosButton from "./components/SosButton";
 import ChatbotWidget from "./components/ChatbotWidget";
-import { useEffect } from "react";
-import { useLocation } from "react-router-dom";
 import ScrollToTop from "./components/ScrollToTop";
 import OfflineBanner from "./components/OfflineBanner";
 
@@ -27,7 +26,9 @@ function PageTitleUpdater() {
       "/hospitals": "Hospitals | SmartHospital",
       "/request-emergency": "Request Emergency | SmartHospital",
       "/patients": "Patients | SmartHospital",
+      "/patients/add": "Add Patient | SmartHospital",
       "/ambulances": "Ambulances | SmartHospital",
+      "/ambulances/add": "Add Ambulance | SmartHospital",
       "/dashboard": "Dashboard | SmartHospital",
       "/login": "Login | SmartHospital",
       "/signup": "Sign Up | SmartHospital",
@@ -36,27 +37,52 @@ function PageTitleUpdater() {
   }, [location.pathname]);
   return null;
 }
+
 function App() {
   return (
     <BrowserRouter>
       <PageTitleUpdater />
+      <a href="#main-content" className="skip-link">
+        Skip to main content
+      </a>
       <OfflineBanner />
       <Navbar />
       <ScrollToTop />
-      <div className="page-fade-enter">
+      <main id="main-content" tabIndex={-1}>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/hospitals" element={<HospitalList />} />
           <Route path="/request-emergency" element={<RequestEmergency />} />
           <Route path="/patients" element={<PatientList />} />
           <Route path="/ambulances" element={<AmbulanceList />} />
-          <Route path="/patients/add" element={<AdminRoute><AddPatient /></AdminRoute>} />
-          <Route path="/ambulances/add" element={<AdminRoute><AddAmbulance /></AdminRoute>} />
+          <Route
+            path="/patients/add"
+            element={
+              <AdminRoute>
+                <AddPatient />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/ambulances/add"
+            element={
+              <AdminRoute>
+                <AddAmbulance />
+              </AdminRoute>
+            }
+          />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
-          <Route path="/dashboard" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
+          <Route
+            path="/dashboard"
+            element={
+              <AdminRoute>
+                <AdminDashboard />
+              </AdminRoute>
+            }
+          />
         </Routes>
-      </div>
+      </main>
       <Footer />
       <SosButton />
       <ChatbotWidget />

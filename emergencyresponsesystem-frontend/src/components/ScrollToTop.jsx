@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
+import { ChevronUpIcon } from "./Icons";
 
 function ScrollToTop() {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    const handleScroll = () => setVisible(window.scrollY > 400);
-    window.addEventListener("scroll", handleScroll);
+    const handleScroll = () => setVisible(window.scrollY > 360);
+    window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
@@ -13,25 +14,28 @@ function ScrollToTop() {
 
   return (
     <button
+      type="button"
+      className="scroll-top-btn"
       onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+      aria-label="Scroll back to top"
       style={{
         position: "fixed",
-        bottom: "96px",
-        right: "26px",
-        width: "42px",
-        height: "42px",
+        insetBlockEnd: "6rem",
+        insetInlineEnd: "1.5rem",
+        inlineSize: "44px",
+        blockSize: "44px",
         borderRadius: "50%",
-        background: "rgba(26,26,46,0.85)",
-        color: "white",
-        border: "1px solid rgba(255,255,255,0.2)",
-        cursor: "pointer",
-        fontSize: "16px",
+        backgroundColor: "var(--color-primary)",
+        color: "#FFFFFF",
+        border: "2px solid #FFFFFF",
+        display: "inline-flex",
+        alignItems: "center",
+        justifyContent: "center",
         zIndex: 997,
-        boxShadow: "0 4px 14px rgba(0,0,0,0.25)",
+        boxShadow: "var(--shadow-md)",
       }}
-      aria-label="Scroll to top"
     >
-      ↑
+      <ChevronUpIcon size={18} />
     </button>
   );
 }
